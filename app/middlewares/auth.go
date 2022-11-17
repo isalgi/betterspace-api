@@ -53,7 +53,6 @@ func CheckToken(token string) bool {
 }
 
 func GetUser(token *jwt.Token) *JwtCustomClaims {
-	// user := c.Get("user").(*jwt.Token)
 	isListed := CheckToken(token.Raw)
 	
 	if !isListed {
