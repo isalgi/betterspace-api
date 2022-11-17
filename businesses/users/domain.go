@@ -15,15 +15,16 @@ type Domain struct {
 	Email     string
 	Password  string
 	Gender    string
-	DOB       string
-	Phone     int
+	DOB       time.Time
+	Phone     string
 }
 
 type Usecase interface {
-	Login(userDomain *Domain) string
 	Register(userDomain *Domain) Domain
+	Login(userDomain *Domain) string
 }
 
 type Repository interface {
 	Register(userDomain *Domain) Domain
+	GetByEmail(userDomain *Domain) Domain
 }
