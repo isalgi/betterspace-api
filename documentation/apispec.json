@@ -145,7 +145,7 @@
                                         }
                                     },
                                     "Oprah":{
-                                        "description": "Example success create new user Kobe",
+                                        "description": "Example success create new user Oprah",
                                         "value":{
                                             "id": 2,
                                             "created_at": "1970-01-01T23:30:11.764+07:01",
@@ -221,15 +221,15 @@
                                 },
                                 "examples": {
                                     "Kobe":{
-                                        "description": "Example success create new user Kobe",
+                                        "description": "Example success login user Kobe",
                                         "value":{
-                                            "token": "testtoken1"
+                                            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNjY3NzQ4NDc5fQ.9dIFTxABmUEZpQtZLpocS5FRzHnreuuXckBYACkRBBQ"
                                         }
                                     },
                                     "Oprah":{
-                                        "description": "Example success create new user Kobe",
+                                        "description": "Example success login user Oprah",
                                         "value":{
-                                            "token": "testtoken2"
+                                            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZXhwIjoxNjY4ODA1NjcwfQ.L5QD2kPuGjrGO7K7VRNXdqsNWb4aZWCQa9EBHDIJBC8"
                                         }
                                     }
                                 }
