@@ -1,0 +1,243 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Office Booking Service RESTful API",
+        "version": "1.0.0",
+        "description": "OpenAPI for Office Booking Service RESTful API",
+        "license": {
+            "name": "APACHE 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        }
+    },
+    "servers": [
+        {
+            "description": "Office Booking Service Restful API Server",
+            "url": "https:{environment}.localhost.com/api/v1",
+            "variables": {
+                "environment": {
+                    "description": "Server Environment",
+                    "default": "development",
+                    "enum": [
+                        "development",
+                        "staging",
+                        "production"
+                    ]
+                }
+            }
+        }
+    ],
+    "paths": {
+        "/register": {
+            "post": {
+                "description": "Create New User",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "type": "object",
+                                "properties": {
+                                    "full_name":{
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "required": true
+                                    },
+                                    "gender":{
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "required": true
+                                    },
+                                    "email":{
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "required": true
+                                    },
+                                    "password":{
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "required": true
+                                    },
+                                    "confirmation_password":{
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "required": true
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "Kobe":{
+                                    "description": "Example create new user Kobe",
+                                    "value":{
+                                        "full_name": "Kobe Bryant",
+                                        "gender": "Male",
+                                        "email": "kobebryant@gmail.com",
+                                        "password": "kobebryant123",
+                                        "confirmation_password": "kobebryant123"
+                                    }
+                                },
+                                "Oprah":{
+                                    "description": "Example create new user Oprah",
+                                    "value":{
+                                        "full_name": "Oprah Winfrey",
+                                        "gender": "Female",
+                                        "email": "oprah@gmail.com",
+                                        "password": "oprah123",
+                                        "confirmation_password": "oprah123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created - Success Create New User",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                        "id":{
+                                            "type": "number",
+                                            "format": "int64"
+                                        },
+                                        "created_at":{
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at":{
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "deleted_at":{
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "nullable": true
+                                        },
+                                        "full_name":{
+                                            "type": "string"
+                                        },
+                                        "gender":{
+                                            "type": "string"
+                                        },
+                                        "email":{
+                                            "type": "string",
+                                            "format": "email"
+                                        },
+                                        "password":{
+                                            "type": "string",
+                                            "format": "password"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Kobe":{
+                                        "description": "Example success create new user Kobe",
+                                        "value":{
+                                            "id": 1,
+                                            "created_at": "1970-01-01T21:27:11.764+07:01",
+                                            "updated_at": "1970-01-01T21:27:11.764+07:01",
+                                            "deleted_at": null,
+                                            "full_name": "Kobe Bryant",
+                                            "gender": "Male",
+                                            "email": "kobebryant@gmail.com",
+                                            "password": "kobebryant123"
+                                        }
+                                    },
+                                    "Oprah":{
+                                        "description": "Example success create new user Kobe",
+                                        "value":{
+                                            "id": 2,
+                                            "created_at": "1970-01-01T23:30:11.764+07:01",
+                                            "updated_at": "1970-01-01T23:30:11.764+07:01",
+                                            "deleted_at": null,
+                                            "full_name": "Oprah Winfrey",
+                                            "gender": "Female",
+                                            "email": "oprah@gmail.com",
+                                            "password": "oprah123"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "User login to get token for authentication",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "type": "object",
+                                "properties": {
+                                    "email":{
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "required": true
+                                    },
+                                    "password":{
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "required": true
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "Kobe":{
+                                    "description": "Example login user Kobe",
+                                    "value":{
+                                        "email": "kobebryant@gmail.com",
+                                        "password": "kobebryant123"
+                                    }
+                                },
+                                "Oprah":{
+                                    "description": "Example login user Oprah",
+                                    "value":{
+                                        "email": "oprah@gmail.com",
+                                        "password": "oprah123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK - Success Login",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                        "token":{
+                                            "type": "string",
+                                            "format": "jwt-token"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Kobe":{
+                                        "description": "Example success create new user Kobe",
+                                        "value":{
+                                            "token": "testtoken1"
+                                        }
+                                    },
+                                    "Oprah":{
+                                        "description": "Example success create new user Kobe",
+                                        "value":{
+                                            "token": "testtoken2"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
