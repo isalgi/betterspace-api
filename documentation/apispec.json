@@ -12,7 +12,7 @@
     "servers": [
         {
             "description": "Office Booking Service Restful API Server",
-            "url": "https:{environment}.localhost.com/api/v1",
+            "url": "https://{environment}.localhost.com/api/v1",
             "variables": {
                 "environment": {
                     "description": "Server Environment",
@@ -29,6 +29,7 @@
     "paths": {
         "/register": {
             "post": {
+                "tags": ["user"],
                 "description": "Create New User",
                 "requestBody": {
                     "required": true,
@@ -166,6 +167,7 @@
         },
         "/login": {
             "post": {
+                "tags": ["user"],
                 "description": "User login to get token for authentication",
                 "requestBody": {
                     "required": true,
@@ -237,6 +239,101 @@
                         }
                     }
                 }
+            }
+        },
+        "/admin": {
+            "get": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["admin"],
+                "description": "get all admins",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["admin"],
+                "description": "create new admin",
+                "parameters": [],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    }
+                }
+            }
+        },
+        "/admin/{adminId}": {
+            "get": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["admin"],
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "adminId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["admin"],
+                "description": "",
+                "parameters": [],
+                "requestBody": {},
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["admin"],
+                "description": "",
+                "parameters": [],
+                "requestBody": {},
+                "responses": {}
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "adminBearerAuth":{
+                "description": "Authentication for Admin",
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "userBearerAuth":{
+                "description": "Authentication for User",
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     }
