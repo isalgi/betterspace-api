@@ -718,5 +718,21 @@
                 }
             }
         }
+    },
+    "components": {
+        "securitySchemes": {
+            "adminBearerAuth":{
+                "description": "Authentication for Admin",
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "userBearerAuth":{
+                "description": "Authentication for User",
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
     }
 }
