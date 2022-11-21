@@ -260,7 +260,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/ArrayAdmins"
                                 },
                                 "examples": {
                                     "success": {
@@ -926,6 +926,50 @@
                     }
                 }
             }
+        },
+        "/users": {
+            "get": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "tags": ["Admin"],
+                "summary": "Get users",
+                "description": "Get all users account",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ArrayUsers"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "",
+                                        "value": [
+                                            {
+                                                "full_name": "Kobe Bryant",
+                                                "gender": "Male",
+                                                "email": "kobebryant@gmail.com",
+                                                "password": "kobebryant123"
+                                            },
+                                            {
+                                                "full_name": "Oprah Winfrey",
+                                                "gender": "Female",
+                                                "email": "oprah@gmail.com",
+                                                "password": "oprah123"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -990,6 +1034,48 @@
                     "token": {
                         "type": "string"
                     }
+                }
+            },
+            "Users": {
+                "type": "object",
+                "properties": {
+                    "id":{
+                        "type": "number",
+                        "format": "int64"
+                    },
+                    "created_at":{
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at":{
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "deleted_at":{
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "full_name":{
+                        "type": "string"
+                    },
+                    "gender":{
+                        "type": "string"
+                    },
+                    "email":{
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password":{
+                        "type": "string",
+                        "format": "password"
+                    }
+                }
+            },
+            "ArrayUsers": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Users"
                 }
             }
         }
