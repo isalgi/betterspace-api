@@ -93,7 +93,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Created - Success create new user",
+                        "description": "Created - success create new user",
                         "content": {
                             "application/json":{
                                 "schema":{
@@ -211,7 +211,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK - Success Login",
+                        "description": "OK - success Login",
                         "content": {
                             "application/json":{
                                 "schema":{
@@ -251,7 +251,8 @@
                     }
                 ],
                 "tags": ["Admin"],
-                "description": "get all admins",
+                "summary": "Get admins",
+                "description": "get list of admins",
                 "parameters": [],
                 "responses": {
                     "200": {
@@ -288,7 +289,8 @@
                     }
                 ],
                 "tags": ["Admin"],
-                "description": "create new admin",
+                "summary": "Create admin",
+                "description": "create new admin account",
                 "parameters": [],
                 "responses": {
                     "201": {
@@ -321,7 +323,8 @@
                     }
                 ],
                 "tags": ["Admin"],
-                "description": "",
+                "summary": "Get admin",
+                "description": "Get admin account by id",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/AdminId"
@@ -356,7 +359,8 @@
                     }
                 ],
                 "tags": ["Admin"],
-                "description": "",
+                "summary": "Update admin",
+                "description": "Update admin username",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/AdminId"
@@ -410,7 +414,8 @@
                     }
                 ],
                 "tags": ["Admin"],
-                "description": "",
+                "summary": "Delete admin",
+                "description": "Delete admin account",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/AdminId"
@@ -975,10 +980,18 @@
                     }
                 }
             },
-            "arrayAdmins": {
+            "ArrayAdmins": {
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/Admins"
+                }
+            },
+            "BearerToken": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
                 }
             }
         }
