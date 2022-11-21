@@ -41,28 +41,23 @@
                                 "properties": {
                                     "full_name":{
                                         "type": "string",
-                                        "minLength": 1,
-                                        "required": true
+                                        "minLength": 1
                                     },
                                     "gender":{
                                         "type": "string",
-                                        "minLength": 1,
-                                        "required": true
+                                        "minLength": 1
                                     },
                                     "email":{
                                         "type": "string",
-                                        "minLength": 3,
-                                        "required": true
+                                        "minLength": 3
                                     },
                                     "password":{
                                         "type": "string",
-                                        "minLength": 8,
-                                        "required": true
+                                        "minLength": 8
                                     },
                                     "confirmation_password":{
                                         "type": "string",
-                                        "minLength": 8,
-                                        "required": true
+                                        "minLength": 8
                                     }
                                 }
                             },
@@ -180,13 +175,11 @@
                                 "properties": {
                                     "email":{
                                         "type": "string",
-                                        "minLength": 3,
-                                        "required": true
+                                        "minLength": 3
                                     },
                                     "password":{
                                         "type": "string",
-                                        "minLength": 8,
-                                        "required": true
+                                        "minLength": 8
                                     }
                                 }
                             },
@@ -918,15 +911,30 @@
                   }
             },
             "post" : {
-                "tags": ["Transaction"]
+                "tags": ["Transaction"],
+                "responses": {
+                    "200": {
+                        "description": "success create transaction"
+                    }
+                }
             }
         },
         "/transaction/{transactionId}": {
             "put": {
-                "tags": ["Transaction"]
+                "tags": ["Transaction"],
+                "responses": {
+                    "200": {
+                        "description": "success update transaction"
+                    }
+                }
             },
             "delete": {
-                "tags": ["Transaction"]
+                "tags": ["Transaction"],
+                "responses": {
+                    "200": {
+                        "description": "success delete transaction"
+                    }
+                }
             }
         },
         "/users": {
