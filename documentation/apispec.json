@@ -29,8 +29,9 @@
     "paths": {
         "/register": {
             "post": {
-                "tags": ["user"],
-                "description": "Create New User",
+                "tags": ["User"],
+                "summary": "Create new user",
+                "description": "Create new user",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -92,7 +93,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Created - Success Create New User",
+                        "description": "Created - Success create new user",
                         "content": {
                             "application/json":{
                                 "schema":{
@@ -167,7 +168,8 @@
         },
         "/login": {
             "post": {
-                "tags": ["user"],
+                "tags": ["User"],
+                "summary": "User login",
                 "description": "User login to get token for authentication",
                 "requestBody": {
                     "required": true,
@@ -319,21 +321,401 @@
                 "requestBody": {},
                 "responses": {}
             }
-        }
-    },
-    "components": {
-        "securitySchemes": {
-            "adminBearerAuth":{
-                "description": "Authentication for Admin",
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+        },
+        "/office": {
+            "get": {
+                "tags": ["Office"],
+                "summary": "Get all office",
+                "description": "Get all active office by location",
+                "parameters": [
+                    {
+                      "name": "name",
+                      "in": "query",
+                      "required": false,
+                      "description": "Filter office by location",
+                      "schema": {
+                        "type": "string",
+                        "nullable": true,
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "examples": {
+                        "Jakarta Utara": {
+                          "description": "Working space at Jakarta Utara",
+                          "value": "Jakarta Utara"
+                        },
+                        "Jakarta Pusat": {
+                          "description": "Working space at Jakarta Pusat",
+                          "value": "Jakarta Pusat"
+                        }
+                      }
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                        "description" : "Success get all office",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success get all office",
+                                        "value": [
+                                            {
+                                                "id": "1",
+                                                "name": "Noble House",
+                                                "description": "Working space based in Jakarta Utara",
+                                                "tags":[
+                                                    "Jakarta Utara"
+                                                ]
+                                            },
+                                            {
+                                                "id": "2",
+                                                "name": "Sinarmas Tower",
+                                                "description": "Working space based in Jakarta Pusat",
+                                                "tags":[
+                                                    "Jakarta Pusat"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                  }
             },
-            "userBearerAuth":{
-                "description": "Authentication for User",
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+            "post": {
+                "tags": ["Office"],
+                "summary": "Create new office",
+                "description": "Create new office to database",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                            },
+                            "examples": {
+                                "Jakarta Utara": {
+                                    "description": "Example create office at Jakarta Utara",
+                                    "value": {
+                                        "name": "UnionSpace",
+                                        "description": "Working space based in Jakarta Utara",
+                                        "tags": [
+                                            "Jakarta Utara"
+                                        ]
+                                    }
+                                },
+                                "Jakarta Pusat": {
+                                    "description": "Example create office at Jakarta Pusat",
+                                    "value": {
+                                        "name": "Kedasi",
+                                        "description": "Working space based in Jakarta Pusat",
+                                        "tags": [
+                                            "Jakarta Pusat"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success create office",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Jakarta Utara": {
+                                        "description": "Success create office at Jakarta Utara",
+                                        "value": {
+                                            "name": "UnionSpace",
+                                            "description": "Working space based in Jakarta Utara",
+                                            "tags": [
+                                                "Jakarta Utara"
+                                            ]
+                                        }
+                                    },
+                                    "Jakarta Pusat": {
+                                        "description": "Example create office at Jakarta Pusat",
+                                        "value": {
+                                            "name": "Kedasi",
+                                            "description": "Working space based in Jakarta Pusat",
+                                            "tags": [
+                                            "Jakarta Pusat"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/office/{officeId}": {
+            "put": {
+                "tags": ["Office"],
+                "summary": "Update existing office",
+                "description": "Update existing office in database",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": true,
+                        "description": "Office id for updated",
+                        "schema": {
+                          "type": "string",
+                          "nullable": true,
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "examples": {
+                          "Jakarta Utara": {
+                            "description": "Working space at Jakarta Utara",
+                            "value": "Jakarta Utara"
+                          },
+                          "Jakarta Pusat": {
+                            "description": "Working space at Jakarta Pusat",
+                            "value": "Jakarta Pusat"
+                          }
+                        }
+                      }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                            },
+                            "examples": {
+                                "Jakarta Utara": {
+                                    "description": "Example office at Jakarta Utara",
+                                    "value": {
+                                        "name": "UnionSpace",
+                                        "description": "Working space based in Jakarta Utara",
+                                        "tags": [
+                                            "Jakarta Utara"
+                                        ]
+                                    }
+                                },
+                                "Jakarta Pusat": {
+                                    "description": "Example office at Jakarta Pusat",
+                                    "value": {
+                                        "name": "Kedasi",
+                                        "description": "Working space based in Jakarta Pusat",
+                                        "tags": [
+                                            "Jakarta Pusat"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success update office",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Jakarta Utara": {
+                                        "description": "Example updated office at Jakarta Utara",
+                                        "value": {
+                                            "name": "UnionSpace",
+                                            "description": "Working space based in Jakarta Utara",
+                                            "tags": [
+                                                "Jakarta Utara"
+                                            ]
+                                        }
+                                    },
+                                    "Jakarta Pusat": {
+                                        "description": "Example updated office at Jakarta Pusat",
+                                        "value": {
+                                            "name": "Kedasi",
+                                            "description": "Working space based in Jakarta Pusat",
+                                            "tags": [
+                                                "Jakarta Pusat"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Office"],
+                "summary": "Delete existing office",
+                "description": "Delete existing office in database",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": true,
+                        "description": "Office id for updated",
+                        "schema": {
+                          "type": "string",
+                          "nullable": true,
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "examples": {
+                          "Jakarta Utara": {
+                            "description": "Working space at Jakarta Utara",
+                            "value": "Jakarta Utara"
+                          },
+                          "Jakarta Pusat": {
+                            "description": "Working space at Jakarta Pusat",
+                            "value": "Jakarta Pusat"
+                          }
+                        }
+                      }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success delete office",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Success delete office",
+                                        "value": {
+                                            "success": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Failed delete not found todolist",
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object",
+                              "properties": {
+                                "success": {
+                                  "type": "boolean"
+                                }
+                              }
+                            },
+                            "examples": {
+                              "failed": {
+                                "description": "Failed delete todolist",
+                                "value": {
+                                  "success": false
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                }
             }
         }
     }
