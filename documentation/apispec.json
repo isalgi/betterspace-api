@@ -880,51 +880,53 @@
                 }
             }
         },
-        "/admin/login": {
-            "post": {
-                "tags": ["Admin"],
-                "summary": "Admin login",
-                "description": "Admin login to get token for authentication",
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json":{
-                            "schema":{
-                                "$ref": "#/components/schemas/Admins"
-                            },
-                            "examples": {
-                                "success":{
-                                    "description": "Example admin login",
-                                    "value":{
-                                        "username": "admin1",
-                                        "password": "admin123"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
+        "/transaction": {
+            "get": {
+                "tags": ["Transaction"],
+                "summary": "Get all transaction",
+                "description": "Get all transaction by default",
+                
+                  "responses": {
                     "200": {
-                        "description": "OK",
+                        "description" : "Success get all office",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BearerToken"
-                                },
-                                "examples": {
-                                    "success": {
-                                        "description": "example token after login",
-                                        "value": {
-                                            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNjY3NzQ4NDc5fQ.9dIFTxABmUEZpQtZLpocS5FRzHnreuuXckBYACkRBBQ"
+                                    "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
                                         }
                                     }
                                 }
+                                
                             }
                         }
                     }
-                }
+                  }
+            },
+            "post" : {
+                "tags": ["Transaction"]
+            }
+        },
+        "/transaction/{transactionId}": {
+            "put": {
+                "tags": ["Transaction"]
+            },
+            "delete": {
+                "tags": ["Transaction"]
             }
         },
         "/users": {
