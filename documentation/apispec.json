@@ -250,12 +250,34 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["admin"],
+                "tags": ["Admin"],
                 "description": "get all admins",
                 "parameters": [],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success get all admins",
+                                        "value": [
+                                            {
+                                                "username": "admin1",
+                                                "password": "admin1"
+                                            },
+                                            {
+                                                "username": "admin2",
+                                                "password": "admin2"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -265,12 +287,28 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["admin"],
+                "tags": ["Admin"],
                 "description": "create new admin",
                 "parameters": [],
                 "responses": {
                     "201": {
-                        "description": "Created"
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success create admin",
+                                        "value": {
+                                            "username": "admin1",
+                                            "password": "admin1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -282,18 +320,32 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["admin"],
+                "tags": ["Admin"],
                 "description": "",
                 "parameters": [
                     {
-                        "name": "adminId",
-                        "in": "path",
-                        "required": true
+                        "$ref": "#/components/parameters/AdminId"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success get admin",
+                                        "value": {
+                                            "username": "admin1",
+                                            "password": "admin1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -303,11 +355,53 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["admin"],
+                "tags": ["Admin"],
                 "description": "",
-                "parameters": [],
-                "requestBody": {},
-                "responses": {}
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/AdminId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/Admins"
+                            },
+                            "examples": {
+                                "Success":{
+                                    "description": "Example update",
+                                    "value":{
+                                        "username": "kobebryant",
+                                        "password": "kobebryant123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success get all admins",
+                                        "value": {
+                                            "username": "admin1",
+                                            "password": "admin1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             "delete": {
                 "security": [
@@ -315,11 +409,74 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["admin"],
+                "tags": ["Admin"],
                 "description": "",
-                "parameters": [],
-                "requestBody": {},
-                "responses": {}
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/AdminId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json":{
+                            "schema":{
+                                "$ref": "#/components/schemas/Admins"
+                            },
+                            "examples": {
+                                "Success":{
+                                    "description": "Example update",
+                                    "value":{
+                                        "username": "kobebryant",
+                                        "password": "kobebryant123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Example success get admin",
+                                        "value": {
+                                            "status": "success",
+                                            "message": "admin deleted",
+                                            "data": ""
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Admins"
+                                },
+                                "examples": {
+                                    "failed": {
+                                        "description": "Example failed get admin",
+                                        "value": {
+                                            "status": "failed",
+                                            "message": "admin not found",
+                                            "data": ""
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/office": {
@@ -732,6 +889,48 @@
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT"
+            }
+        },
+        "parameters": {
+            "AdminId": {
+                "name": "adminId",
+                "in": "path",
+                "required": true,
+                "description": "adminId for get admin by id, update",
+                "schema": {
+                    "type": "integer",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "examples": {
+                    "admin1": {
+                        "description": "Sample admin id for admin1",
+                        "value": "1"
+                    },
+                    "admin2": {
+                        "description": "Sample admin id for admin2",
+                        "value": "2"
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Admins": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "arrayAdmins": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Admins"
+                }
             }
         }
     }
