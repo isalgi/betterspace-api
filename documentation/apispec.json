@@ -874,6 +874,55 @@
                       }
                 }
             }
+        },
+        "/transaction": {
+            "get": {
+                "tags": ["Transaction"],
+                "summary": "Get all transaction",
+                "description": "Get all transaction by default",
+                
+                  "responses": {
+                    "200": {
+                        "description" : "Success get all office",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type" : "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                  }
+            },
+            "post" : {
+                "tags": ["Transaction"]
+            }
+        },
+        "/transaction/{transactionId}": {
+            "put": {
+                "tags": ["Transaction"]
+            },
+            "delete": {
+                "tags": ["Transaction"]
+            }
         }
     },
     "components": {
