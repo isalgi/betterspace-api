@@ -161,19 +161,14 @@
                         }
                     },
                     "404": {
-                        "description": "Bad request - duplicate email",
+                        "description": "Bad request. Duplicate email, enter different email.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorMessage"
                                 },
-                                "examples": {
-                                    "Bad request": {
-                                        "description": "Example of bad request",
-                                        "value": {
-                                            "message": "email already taken"
-                                        }
-                                    }
+                                "example": {    
+                                    "message": "email already taken"
                                 }
                             }
                         }
@@ -230,13 +225,7 @@
                         "content": {
                             "application/json":{
                                 "schema":{
-                                    "type": "object",
-                                    "properties": {
-                                        "token":{
-                                            "type": "string",
-                                            "format": "jwt-token"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/BearerToken"
                                 },
                                 "examples": {
                                     "Success": {
@@ -281,7 +270,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessageDataArray"
+                                    "$ref": "#/components/schemas/ResponseMessageDataArray"
                                 },
                                 "examples": {
                                     "Success": {
@@ -333,7 +322,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessage"
+                                    "$ref": "#/components/schemas/ResponseMessage"
                                 },
                                 "examples": {
                                     "Success": {
@@ -381,7 +370,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessage"
+                                    "$ref": "#/components/schemas/ResponseMessage"
                                 },
                                 "examples": {
                                     "Success": {
@@ -445,7 +434,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessage"
+                                    "$ref": "#/components/schemas/ResponseMessage"
                                 },
                                 "examples": {
                                     "success": {
@@ -497,15 +486,15 @@
                                     "description": "Example update",
                                     "value":{
                                         "status": "success",
-                                            "message": "",
-                                            "data": {
-                                                "id": 1,
-                                                "created_at": "2022-11-06T21:32:27.979+07:00",
-                                                "updated_at": "2022-11-06T21:32:27.979+07:00",
-                                                "deleted_at": null,
-                                                "username": "admin1",
-                                                "password": "admin1"
-                                            }
+                                        "message": "",
+                                        "data": {
+                                            "id": 1,
+                                            "created_at": "2022-11-06T21:32:27.979+07:00",
+                                            "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                            "deleted_at": null,
+                                            "username": "admin1",
+                                            "password": "admin1"
+                                        }
                                     }
                                 }
                             }
@@ -518,7 +507,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessageDataEmpty"
+                                    "$ref": "#/components/schemas/ResponseMessageDataEmpty"
                                 },
                                 "examples": {
                                     "success": {
@@ -538,7 +527,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SuccessMessageDataEmpty"
+                                    "$ref": "#/components/schemas/ResponseMessageDataEmpty"
                                 },
                                 "examples": {
                                     "failed": {
@@ -962,10 +951,15 @@
         },
         "/transaction": {
             "get": {
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "Get all transaction",
+                "summary": "Get all transactions",
                 "description": "Get all transaction by default",
                 
                   "responses": {
@@ -1000,12 +994,24 @@
                   }
             },
             "post" : {
+                "security": [
+                    {
+                        "bearerAuthForAll": []
+                    }
+                ],
                 "tags": [
                     "Transactions"
                 ],
+                "summary": "Create transactions",
+                "parameters": [],
+                "requestBody": {
+                    "content": {
+
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "success create transaction"
+                        "description": "OK. Success create transaction"
                     }
                 }
             }
@@ -1015,6 +1021,12 @@
                 "tags": [
                     "Transactions"
                 ],
+                "security": [
+                    {
+                        "bearerAuthForAll": []
+                    }
+                ],
+                "summary": "Update transaction",
                 "responses": {
                     "200": {
                         "description": "success update transaction"
@@ -1025,6 +1037,12 @@
                 "tags": [
                     "Transactions"
                 ],
+                "security": [
+                    {
+                        "adminBearerAuth": []
+                    }
+                ],
+                "summary": "Delete transaction",
                 "responses": {
                     "200": {
                         "description": "success delete transaction"
@@ -1081,7 +1099,9 @@
         "/users/{userId}": {
             "get": {
                 "security": [
-                    
+                    {
+                        "bearerAuthForAll": []
+                    }
                 ],
                 "summary": "get user by id",
                 "description": "",
@@ -1090,17 +1110,81 @@
                     "Users"
                 ],
                 "parameters": [
-
+                    {
+                        "$ref": "#/components/parameters/UserId"
+                    }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Users"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "success",
+                                    "message": "get user by userId",
+                                    "data": {
+                                        "id": 1,
+                                        "created_at": "2022-11-06T21:32:27.979+07:00",
+                                        "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                        "deleted_at": null,
+                                        "full_name": "Kobe Bryant",
+                                        "gender": "Male",
+                                        "email": "kobebryant@gmail.com",
+                                        "password": "kobebryant123",
+                                        "image": "https://encrypted-tbn0.gstatic.com/imagesq=tbn:ANd9GcQakN75XE1j17LhfzEvGhyHVIajwhwylO9c_S_GLYos"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found. User did not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "message": "user not found",
+                                    "data": ""
+                                }
+                            }
+                        }
                     }
                 }
             },
             "delete": {
                 "security": [
-                    
+                    {
+                        "bearerAuthForAll": []
+                    }
                 ],
                 "summary": "delete user",
                 "description": "",
@@ -1109,8 +1193,187 @@
                     "Users"
                 ],
                 "parameters": [
-
+                    {
+                        "$ref": "#/components/parameters/UserId"
+                    }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "success",
+                                    "message": "user deleted",
+                                    "data": ""
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found. User did not exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "message": "user not found",
+                                    "data": ""
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions?id=user_id": {
+            "get": {
+                "security": [
+                    {
+                        "userBearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get user transactions",
+                "description": "get all transactions spesific on one user by user ID",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/UserIdInQuery"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseMessageDataArray"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/offices?search=office+title": {
+            "get": {
+                "security": [],
+                "tags": [
+                    "Offices"
+                ],
+                "summary": "Get office by title",
+                "description": "",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Search"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Offices"
+                                        }
+                                    }
+                                },
+                                "example": {
+
+                                            "status": "success",
+                                            "message": "get office by title",
+                                            "data": {
+                                                "name": "Union Space",
+                                                "description": "Cozy space for working",
+                                                "capacity": 100,
+                                                "city": "Jakarta Utara",
+                                                "location": "Jl. Lodan Timur No.7, RW.10, Ancol, Kec. Pademangan, Kota Jkt Utara, 14430",
+                                                "facilities_list": [
+                                                    "high speed wifi",
+                                                    "nice view from the window",
+                                                    "available many charging slot"
+                                                ],
+                                                "rating_score": 4.8
+                                            }
+
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type":"string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "failed",
+                                    "message": "office not found",
+                                    "data": ""
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "description": "",
+                "parameters": [],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -1132,6 +1395,12 @@
                 "type": "http",
                 "scheme": "bearer",
                 "bearerFormat": "JWT"
+            },
+            "bearerAuthForAll":{
+                "description": "Authentication for all accounts when an endpoint can be accessed by admin and user",
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         },
         "parameters": {
@@ -1142,22 +1411,112 @@
                 "description": "adminId for get admin by id, update",
                 "schema": {
                     "type": "integer",
-                    "minLength": 1,
-                    "maxLength": 100
+                    "minLength": 1
                 },
                 "examples": {
                     "admin1": {
                         "description": "Sample admin id for admin1",
-                        "value": "1"
+                        "value": 1
                     },
                     "admin2": {
                         "description": "Sample admin id for admin2",
-                        "value": "2"
+                        "value": 2
+                    }
+                }
+            },
+            "UserId": {
+                "name": "userId",
+                "in": "path",
+                "required": true,
+                "description": "userId for get user by id, update",
+                "schema": {
+                    "type": "integer",
+                    "minLength": 1
+                },
+                "examples":{
+                    "Kobe": {
+                        "description": "Sample user id for Kobe",
+                        "value": 1
+                    }
+                }
+            },
+            "UserIdInQuery": {
+                "name": "userId",
+                "in": "query",
+                "required": true,
+                "description": "userId for query parameters",
+                "schema": {
+                    "type": "integer",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "examples": {
+                    "Kobe": {
+                        "description": "Sample user id for Kobe",
+                        "value": 1
+                    },
+                    "Oprah": {
+                        "description": "Sample user id for Oprah",
+                        "value": 2
+                    }
+                    
+                }
+            },
+            "Search": {
+                "name": "search title",
+                "in": "query",
+                "required": true,
+                "description": "search query parameters",
+                "schema": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "examples": {
+                    "Valid": {
+                        "description": "Sample valid search query",
+                        "value": "union+space"
+                    },
+                    "Invalid": {
+                        "description": "Sample invalid search query",
+                        "value": "union space"
                     }
                 }
             }
         },
         "schemas": {
+            "Offices": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "capacity": {
+                        "type": "integer"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "facilities_list": {
+                        "$ref": "#/components/schemas/Facilities"
+                    },
+                    "rating_score": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                }
+            },
+            "Facilities": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
             "Admins": {
                 "type": "object",
                 "properties": {
@@ -1179,7 +1538,8 @@
                 "type": "object",
                 "properties": {
                     "token": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "jwt-token"
                     }
                 }
             },
@@ -1216,15 +1576,11 @@
                     "password":{
                         "type": "string",
                         "format": "password"
+                    },
+                    "image": {
+                        "type": "string"
                     }
                 }
-            },
-            "Register": {
-                "type": "object",
-                "properties": {
-                    
-                }
-
             },
             "ArrayUsers": {
                 "type": "array",
@@ -1232,7 +1588,7 @@
                     "$ref": "#/components/schemas/Users"
                 }
             },
-            "SuccessMessage": {
+            "ResponseMessage": {
                 "type": "object",
                 "properties": {
                     "status": {
@@ -1246,7 +1602,8 @@
                     }
                 }
             },
-            "SuccessMessageDataArray": {
+            "ResponseMessageDataArray": {
+                
                 "type": "object",
                 "properties": {
                     "status": {
@@ -1256,11 +1613,14 @@
                         "type": "string"
                     },
                     "data": {
-                        "type": "array"
+                        "type": "array",
+                        "items": {
+                            
+                        }
                     }
                 }
             },
-            "SuccessMessageDataEmpty": {
+            "ResponseMessageDataEmpty": {
                 "type": "object",
                 "properties": {
                     "status": {
@@ -1295,12 +1655,51 @@
                         }
                     }
                 }
+            },
+            "CreateOrUpdateTransaction": {
+                "description": "request body for create or update transaction",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+
+                        }
+                    }
+                }
             }
         },
         "examples": {
             "Token": {
                 "value": {
                     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNjY3NzQ4NDc5fQ.9dIFTxABmUEZpQtZLpocS5FRzHnreuuXckBYACkRBBQ"
+                }
+            },
+            "Office": {
+                "value": {
+                    "name": "Union Space",
+                    "description": "Cozy space for working",
+                    "capacity": 100,
+                    "city": "Jakarta Utara",
+                    "location": "Jl. Lodan Timur No.7, RW.10, Ancol, Kec. Pademangan, Kota Jkt Utara, Daerah Khusus Ibukota Jakarta 14430",
+                    "facilities_list": [
+                        "high speed wifi",
+                        "nice view from the window",
+                        "available many charging slot"
+                    ],
+                    "rating_score": 4.8
+                }
+            },
+            "User" : {
+                "value": {
+                    "id": 1,
+                    "created_at": "2022-11-06T21:32:27.979+07:00",
+                    "updated_at": "2022-11-06T21:32:27.979+07:00",
+                    "deleted_at": null,
+                    "full_name": "Kobe Bryant",
+                    "gender": "Male",
+                    "email": "kobebryant@gmail.com",
+                    "password": "kobebryant123",
+                    "image": "https://encrypted-tbn0.gstatic.com/imagesq=tbn:ANd9GcQakN75XE1j17LhfzEvGhyHVIajwhwylO9c_S_GLYos"
                 }
             }
         }
