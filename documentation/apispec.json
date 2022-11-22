@@ -29,7 +29,9 @@
     "paths": {
         "/register": {
             "post": {
-                "tags": ["User"],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "Create new user",
                 "description": "Create new user",
                 "requestBody": {
@@ -157,13 +159,33 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Bad request - duplicate email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples": {
+                                    "Bad request": {
+                                        "description": "Example of bad request",
+                                        "value": {
+                                            "message": "email already taken"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         },
         "/login": {
             "post": {
-                "tags": ["User"],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "User login",
                 "description": "User login to get token for authentication",
                 "requestBody": {
@@ -184,17 +206,17 @@
                                 }
                             },
                             "examples": {
-                                "Kobe":{
-                                    "description": "Example login user Kobe",
+                                "Success":{
+                                    "description": "Example request login for user Kobe",
                                     "value":{
                                         "email": "kobebryant@gmail.com",
                                         "password": "kobebryant123"
                                     }
                                 },
-                                "Oprah":{
-                                    "description": "Example login user Oprah",
+                                "Unauthorized":{
+                                    "description": "Example request login with invalid password",
                                     "value":{
-                                        "email": "oprah@gmail.com",
+                                        "email": "kobebryant@gmail.com",
                                         "password": "oprah123"
                                     }
                                 }
@@ -217,18 +239,22 @@
                                     }
                                 },
                                 "examples": {
-                                    "Kobe":{
-                                        "description": "Example success login user Kobe",
-                                        "value":{
-                                            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNjY3NzQ4NDc5fQ.9dIFTxABmUEZpQtZLpocS5FRzHnreuuXckBYACkRBBQ"
-                                        }
-                                    },
-                                    "Oprah":{
-                                        "description": "Example success login user Oprah",
-                                        "value":{
-                                            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZXhwIjoxNjY4ODA1NjcwfQ.L5QD2kPuGjrGO7K7VRNXdqsNWb4aZWCQa9EBHDIJBC8"
-                                        }
+                                    "Success": {
+                                        "$ref": "#/components/examples/Token"
                                     }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "example": {
+                                    "message": "invalid email or password"
                                 }
                             }
                         }
@@ -243,9 +269,11 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Get admins",
-                "description": "get list of admins",
+                "description": "get list of all admins",
                 "parameters": [],
                 "responses": {
                     "200": {
@@ -253,21 +281,33 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ArrayAdmins"
+                                    "$ref": "#/components/schemas/SuccessMessageDataArray"
                                 },
                                 "examples": {
-                                    "success": {
+                                    "Success": {
                                         "description": "Example success get all admins",
-                                        "value": [
-                                            {
-                                                "username": "admin1",
-                                                "password": "admin1"
-                                            },
-                                            {
-                                                "username": "admin2",
-                                                "password": "admin2"
-                                            }
-                                        ]
+                                        "value": {
+                                            "status": "success",
+                                            "message": "get all admins",
+                                            "data": [
+                                                {
+                                                    "id": 1,
+                                                    "created_at": "2022-11-06T21:32:27.979+07:00",
+                                                    "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                                    "deleted_at": null,
+                                                    "username": "admin1",
+                                                    "password": "admin1"
+                                                },
+                                                {
+                                                    "id": 2,
+                                                    "created_at": "2022-11-07T21:32:27.979+07:00",
+                                                    "updated_at": "2022-11-07T21:32:27.979+07:00",
+                                                    "deleted_at": null,
+                                                    "username": "admin2",
+                                                    "password": "admin2"
+                                                }
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -281,7 +321,9 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Create admin",
                 "description": "create new admin account",
                 "parameters": [],
@@ -291,14 +333,22 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/SuccessMessage"
                                 },
                                 "examples": {
-                                    "success": {
+                                    "Success": {
                                         "description": "Example success create admin",
                                         "value": {
-                                            "username": "admin1",
-                                            "password": "admin1"
+                                            "status": "success",
+                                            "message": "get all admins",
+                                            "data": {
+                                                "id": 1,
+                                                "created_at": "2022-11-06T21:32:27.979+07:00",
+                                                "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                                "deleted_at": null,
+                                                "username": "admin1",
+                                                "password": "admin1"
+                                            }
                                         }
                                     }
                                 }
@@ -315,7 +365,9 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Get admin",
                 "description": "Get admin account by id",
                 "parameters": [
@@ -329,14 +381,22 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/SuccessMessage"
                                 },
                                 "examples": {
-                                    "success": {
+                                    "Success": {
                                         "description": "Example success get admin",
                                         "value": {
-                                            "username": "admin1",
-                                            "password": "admin1"
+                                            "status": "success",
+                                            "message": "get admin by id",
+                                            "data": {
+                                                "id": 1,
+                                                "created_at": "2022-11-06T21:32:27.979+07:00",
+                                                "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                                "deleted_at": null,
+                                                "username": "admin1",
+                                                "password": "admin1"
+                                            }
                                         }
                                     }
                                 }
@@ -351,7 +411,9 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Update admin",
                 "description": "Update admin username",
                 "parameters": [
@@ -367,11 +429,10 @@
                                 "$ref": "#/components/schemas/Admins"
                             },
                             "examples": {
-                                "Success":{
+                                "Valid":{
                                     "description": "Example update",
                                     "value":{
-                                        "username": "kobebryant",
-                                        "password": "kobebryant123"
+                                        "username": "adminqqqq123"
                                     }
                                 }
                             }
@@ -384,14 +445,22 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/SuccessMessage"
                                 },
                                 "examples": {
                                     "success": {
-                                        "description": "Example success get all admins",
+                                        "description": "",
                                         "value": {
-                                            "username": "admin1",
-                                            "password": "admin1"
+                                            "status": "success",
+                                            "message": "",
+                                            "data": {
+                                                "id": 1,
+                                                "created_at": "2022-11-06T21:32:27.979+07:00",
+                                                "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                                "deleted_at": null,
+                                                "username": "adminqqqq123",
+                                                "password": "admin1"
+                                            }
                                         }
                                     }
                                 }
@@ -406,7 +475,9 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Delete admin",
                 "description": "Delete admin account",
                 "parameters": [
@@ -425,8 +496,16 @@
                                 "Success":{
                                     "description": "Example update",
                                     "value":{
-                                        "username": "kobebryant",
-                                        "password": "kobebryant123"
+                                        "status": "success",
+                                            "message": "",
+                                            "data": {
+                                                "id": 1,
+                                                "created_at": "2022-11-06T21:32:27.979+07:00",
+                                                "updated_at": "2022-11-06T21:32:27.979+07:00",
+                                                "deleted_at": null,
+                                                "username": "admin1",
+                                                "password": "admin1"
+                                            }
                                     }
                                 }
                             }
@@ -439,7 +518,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/SuccessMessageDataEmpty"
                                 },
                                 "examples": {
                                     "success": {
@@ -459,7 +538,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Admins"
+                                    "$ref": "#/components/schemas/SuccessMessageDataEmpty"
                                 },
                                 "examples": {
                                     "failed": {
@@ -479,7 +558,9 @@
         },
         "/office": {
             "get": {
-                "tags": ["Office"],
+                "tags": [
+                    "Offices"
+                ],
                 "summary": "Get all office",
                 "description": "Get all active office by location",
                 "parameters": [
@@ -560,7 +641,9 @@
                   }
             },
             "post": {
-                "tags": ["Office"],
+                "tags": [
+                    "Offices"
+                ],
                 "summary": "Create new office",
                 "description": "Create new office to database",
                 "requestBody": {
@@ -667,7 +750,9 @@
         },
         "/office/{officeId}": {
             "put": {
-                "tags": ["Office"],
+                "tags": [
+                    "Offices"
+                ],
                 "summary": "Update existing office",
                 "description": "Update existing office in database",
                 "parameters": [
@@ -796,7 +881,9 @@
                 }
             },
             "delete": {
-                "tags": ["Office"],
+                "tags": [
+                    "Offices"
+                ],
                 "summary": "Delete existing office",
                 "description": "Delete existing office in database",
                 "parameters": [
@@ -875,7 +962,9 @@
         },
         "/transaction": {
             "get": {
-                "tags": ["Transaction"],
+                "tags": [
+                    "Transactions"
+                ],
                 "summary": "Get all transaction",
                 "description": "Get all transaction by default",
                 
@@ -911,7 +1000,9 @@
                   }
             },
             "post" : {
-                "tags": ["Transaction"],
+                "tags": [
+                    "Transactions"
+                ],
                 "responses": {
                     "200": {
                         "description": "success create transaction"
@@ -921,7 +1012,9 @@
         },
         "/transaction/{transactionId}": {
             "put": {
-                "tags": ["Transaction"],
+                "tags": [
+                    "Transactions"
+                ],
                 "responses": {
                     "200": {
                         "description": "success update transaction"
@@ -929,7 +1022,9 @@
                 }
             },
             "delete": {
-                "tags": ["Transaction"],
+                "tags": [
+                    "Transactions"
+                ],
                 "responses": {
                     "200": {
                         "description": "success delete transaction"
@@ -944,7 +1039,9 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "tags": ["Admin"],
+                "tags": [
+                    "Admins"
+                ],
                 "summary": "Get users",
                 "description": "Get all users account",
                 "parameters": [],
@@ -977,6 +1074,46 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/users/{userId}": {
+            "get": {
+                "security": [
+                    
+                ],
+                "summary": "get user by id",
+                "description": "",
+                "tags": [
+                    "Admins",
+                    "Users"
+                ],
+                "parameters": [
+
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    
+                ],
+                "summary": "delete user",
+                "description": "",
+                "tags": [
+                    "Admins",
+                    "Users"
+                ],
+                "parameters": [
+
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -1082,10 +1219,88 @@
                     }
                 }
             },
+            "Register": {
+                "type": "object",
+                "properties": {
+                    
+                }
+
+            },
             "ArrayUsers": {
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/Users"
+                }
+            },
+            "SuccessMessage": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type":"string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                }
+            },
+            "SuccessMessageDataArray": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type":"string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array"
+                    }
+                }
+            },
+            "SuccessMessageDataEmpty": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "ErrorMessage": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "requestBodies": {
+            "Register": {
+                "description": "request body for user register",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            
+                        }
+                    }
+                }
+            }
+        },
+        "examples": {
+            "Token": {
+                "value": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZXhwIjoxNjY3NzQ4NDc5fQ.9dIFTxABmUEZpQtZLpocS5FRzHnreuuXckBYACkRBBQ"
                 }
             }
         }
