@@ -750,7 +750,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success delete office",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -803,28 +803,29 @@
                 
                   "responses": {
                     "200": {
-                        "description" : "Success get all office",
+                        "description" : "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
+                                    "$ref": "#/components/schemas/Transactions"
+                                },
+                                "example": {
+                                    "status": "success",
+                                    "message": "Example success get all transaction",
+                                    "data": [
+                                        {
+                                            "price": 100000,
+                                            "transaction_status" : "Completed",
+                                            "username": "Kobe Bryant",
+                                            "office": "Union Space"
                                         },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
+                                        {
+                                            "price": 500000,
+                                            "transaction_status" : "Completed",
+                                            "username": "Andakara Prastawa",
+                                            "office": "Kedasi Working Space"
                                         }
-                                    }
+                                    ]
                                 }
                                 
                             }
@@ -842,15 +843,41 @@
                     "Transactions"
                 ],
                 "summary": "Create transactions",
-                "parameters": [],
                 "requestBody": {
+                    "required": true,
                     "content": {
-
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Transactions"
+                            },
+                            "example": {
+                                "data": {
+                                    "price": 500000,
+                                    "transaction_status" : "Completed",
+                                    "username": "Andakara Prastawa",
+                                    "office": "Kedasi Working Space"
+                                }
+                                
+                            }
+                        }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "OK. Success create transaction"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Transactions"
+                                },
+                                "example": {
+                                    "price": 500000,
+                                    "transaction_status" : "Completed",
+                                    "username": "Andakara Prastawa",
+                                    "office": "Kedasi Working Space"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -865,10 +892,52 @@
                         "bearerAuthForAll": []
                     }
                 ],
-                "summary": "Update transaction",
+                "summary": "Update existing transaction",
+                "description": "Update existing transaction in database",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/Search"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Transactions"
+                            },
+                            "example": {
+                                "data": {
+                                    "price": 500000,
+                                    "transaction_status" : "Completed",
+                                    "username": "Andakara Prastawa",
+                                    "office": "Kedasi Working Space"
+                                }
+                                
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "success update transaction"
+                        "description": "Success update transaction",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Transactions"
+                                },
+                                "example": {
+                                    "status": "success",
+                                    "message": "Example success update office",
+                                    "data": {
+                                        "price": 500000,
+                                        "transaction_status" : "Completed",
+                                        "username": "Andakara Prastawa",
+                                        "office": "Kedasi Working Space"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -881,11 +950,50 @@
                         "adminBearerAuth": []
                     }
                 ],
-                "summary": "Delete transaction",
+                "summary": "Delete existing transaction",
+                "description": "Delete existing office in transaction",
+                "parameters": [
+                    {
+                        "$ref": "#/components/schemas/Transactions"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "success delete transaction"
-                    }
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                        "$ref": "#/components/schemas/Transactions"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "description": "Success delete transaction",
+                                        "value": {
+                                            "success": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Delete failed, Transaction not found",
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Transactions"
+                            },
+                            "examples": {
+                              "failed": {
+                                "description": "Delete failed, Transaction not found",
+                                "value": {
+                                  "success": false
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                 }
             }
         },
@@ -1337,6 +1445,23 @@
             }
         },
         "schemas": {
+            "Transactions": {
+                "type": "object",
+                "properties": {
+                    "price": {
+                        "type": "integer"
+                    },
+                    "transaction_status": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "office": {
+                        "type": "string"
+                    }
+                }
+            },
             "Offices": {
                 "type": "object",
                 "properties": {
