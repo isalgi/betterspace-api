@@ -10,8 +10,9 @@ import (
 var whiteList []string = make([]string, 5)
 
 type JwtCustomClaims struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 	jwt.StandardClaims
+	roles bool
 }
 
 type ConfigJWT struct {
@@ -26,16 +27,34 @@ func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	}
 }
 
-func (jwtConf *ConfigJWT) GenerateToken(userID int) string {
+func (jwtConf *ConfigJWT) GenerateToken(userID string) string {
 	claims := JwtCustomClaims {
 		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
 		},
+		false,
 	}
 
 	//create token with claims
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
+	whiteList = append(whiteList, token)
+
+	return token
+}
+
+func (jwtConf *ConfigJWT) GenerateAdminToken(adminID string) string {
+	claims := JwtCustomClaims {
+		adminID,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
+		},
+		true,
+	}
+
+	//create token with claims
+	t := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
 	whiteList = append(whiteList, token)
 

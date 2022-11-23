@@ -1,9 +1,11 @@
-package user
+package users
 
 import (
-	users "backend/businesses/users"
+	"backend/businesses/users"
 	"fmt"
+	"strings"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -20,15 +22,22 @@ func NewMySQLRepository(conn *gorm.DB) users.Repository {
 
 func (ur *userRepository) Register(userDomain *users.Domain) users.Domain {
 	password, _ := bcrypt.GenerateFromPassword([]byte(userDomain.Password), bcrypt.DefaultCost)
-	
+
 	rec := FromDomain(userDomain)
+
+	uuid := uuid.New().String()
+	uuidWithoutHyphens := strings.Replace(uuid, "-", "", -1)
+
+	rec.ID = uuidWithoutHyphens
 	rec.Password = string(password)
-	
+	rec.Image = ""
+	rec.Roles = false
+
 	var user User
 	ur.conn.First(&user, "email = ?", userDomain.Email)
 
 	// handle email if email already used for an account
-	if user.ID != 0 {
+	if user.ID != "" {
 		fmt.Println("user exist. proceed to login or use another email.")
 		return users.Domain{}
 	}
@@ -39,11 +48,11 @@ func (ur *userRepository) Register(userDomain *users.Domain) users.Domain {
 	return rec.ToDomain()
 }
 
-func (ur *userRepository) GetByEmail(userDomain *users.Domain) users.Domain {
+func (ur *userRepository) GetByEmail(userDomain *users.LoginDomain) users.Domain {
 	var user User
 	ur.conn.First(&user, "email = ?", userDomain.Email)
 
-	if user.ID == 0 {
+	if user.ID == "" {
 		fmt.Println("user not found")
 		return users.Domain{}
 	}
