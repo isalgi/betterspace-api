@@ -25,7 +25,7 @@ func (uu *UserUsecase) Login(userDomain *LoginDomain) string {
 		return ""
 	}
 
-	if user.Roles {
+	if user.Roles == "admin" {
 		token := uu.jwtAuth.GenerateAdminToken(user.ID)
 		return token
 	}

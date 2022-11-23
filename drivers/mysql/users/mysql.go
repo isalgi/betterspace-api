@@ -31,7 +31,7 @@ func (ur *userRepository) Register(userDomain *users.Domain) users.Domain {
 	rec.ID = uuidWithoutHyphens
 	rec.Password = string(password)
 	rec.Image = ""
-	rec.Roles = false
+	rec.Roles = "user"
 
 	var user User
 	ur.conn.First(&user, "email = ?", userDomain.Email)

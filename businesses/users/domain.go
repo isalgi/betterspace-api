@@ -16,7 +16,7 @@ type Domain struct {
 	Email     	string
 	Password  	string
 	Image		string
-	Roles		bool
+	Roles		string
 }
 
 type LoginDomain struct {

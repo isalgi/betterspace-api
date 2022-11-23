@@ -12,7 +12,7 @@ var whiteList []string = make([]string, 5)
 type JwtCustomClaims struct {
 	ID string `json:"id"`
 	jwt.StandardClaims
-	roles bool
+	Roles string `json:"roles"`
 }
 
 type ConfigJWT struct {
@@ -33,7 +33,7 @@ func (jwtConf *ConfigJWT) GenerateToken(userID string) string {
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
 		},
-		false,
+		"user",
 	}
 
 	//create token with claims
@@ -50,7 +50,7 @@ func (jwtConf *ConfigJWT) GenerateAdminToken(adminID string) string {
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
 		},
-		true,
+		"admin",
 	}
 
 	//create token with claims

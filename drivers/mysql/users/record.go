@@ -17,7 +17,7 @@ type User struct {
 	Password  string         `json:"password" faker:"password"`
 	Gender    string         `json:"gender"`
 	Image     string         `json:"image"`
-	Roles     bool           `json:"roles"`
+	Roles     string           `json:"roles"`
 }
 
 func FromDomain(domain *users.Domain) *User {
