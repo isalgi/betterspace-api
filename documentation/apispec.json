@@ -6,13 +6,13 @@
         "description": "OpenAPI for Office Booking Service RESTful API",
         "license": {
             "name": "APACHE 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         }
     },
     "servers": [
         {
             "description": "Office Booking Service Restful API Server",
-            "url": "https://{environment}.localhost.com/api/v1",
+            "url": "https://virtserver.swaggerhub.com/FAISHALMAKARIMK/CAPSTONE/1.0.0",
             "variables": {
                 "environment": {
                     "description": "Server Environment",
@@ -474,33 +474,6 @@
                         "$ref": "#/components/parameters/AdminId"
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json":{
-                            "schema":{
-                                "$ref": "#/components/schemas/Admins"
-                            },
-                            "examples": {
-                                "Success":{
-                                    "description": "Example update",
-                                    "value":{
-                                        "status": "success",
-                                        "message": "",
-                                        "data": {
-                                            "id": 1,
-                                            "created_at": "2022-11-06T21:32:27.979+07:00",
-                                            "updated_at": "2022-11-06T21:32:27.979+07:00",
-                                            "deleted_at": null,
-                                            "username": "admin1",
-                                            "password": "admin1"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -668,7 +641,7 @@
                 }
             }
         },
-        "/office/{officeId}": {
+        "/office/officeId": {
             "put": {
                 "tags": [
                     "Offices"
@@ -743,11 +716,6 @@
                 ],
                 "summary": "Delete existing office",
                 "description": "Delete existing office in database",
-                "parameters": [
-                    {
-                        "$ref": "#/components/schemas/Offices"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -882,7 +850,7 @@
                 }
             }
         },
-        "/transaction/{transactionId}": {
+        "/transaction/transactionId": {
             "put": {
                 "tags": [
                     "Transactions"
@@ -952,11 +920,6 @@
                 ],
                 "summary": "Delete existing transaction",
                 "description": "Delete existing office in transaction",
-                "parameters": [
-                    {
-                        "$ref": "#/components/schemas/Transactions"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1228,7 +1191,7 @@
                 }
             }
         },
-        "/transactions?id=user_id": {
+        "/transactions/transactionId": {
             "get": {
                 "security": [
                     {
@@ -1259,7 +1222,7 @@
                 }
             }
         },
-        "/offices?search=office+title": {
+        "/offices/officesId": {
             "get": {
                 "security": [],
                 "tags": [
