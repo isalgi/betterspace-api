@@ -554,75 +554,50 @@
                 "description": "Get all active office by location",
                 "parameters": [
                     {
-                      "name": "name",
-                      "in": "query",
-                      "required": false,
-                      "description": "Filter office by location",
-                      "schema": {
-                        "type": "string",
-                        "nullable": true,
-                        "minLength": 1,
-                        "maxLength": 100
-                      },
-                      "examples": {
-                        "Jakarta Utara": {
-                          "description": "Working space at Jakarta Utara",
-                          "value": "Jakarta Utara"
-                        },
-                        "Jakarta Pusat": {
-                          "description": "Working space at Jakarta Pusat",
-                          "value": "Jakarta Pusat"
-                        }
-                      }
+                        "$ref": "#/components/parameters/Search"
                     }
                   ],
                   "responses": {
                     "200": {
-                        "description" : "Success get all office",
+                        "description" : "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/Offices"
                                 },
-                                "examples": {
-                                    "success": {
-                                        "description": "Example success get all office",
-                                        "value": [
+                                "example": {
+                                        "status": "success",
+                                        "message": "Example success get all office",
+                                        "data": [
                                             {
-                                                "id": "1",
-                                                "name": "Noble House",
-                                                "description": "Working space based in Jakarta Utara",
-                                                "tags":[
-                                                    "Jakarta Utara"
-                                                ]
+                                                "name": "Union Space",
+                                                "description": "Cozy space for working",
+                                                "capacity": 100,
+                                                "price_per_hour": 1000000,
+                                                "city": "Jakarta Utara",
+                                                "location": "Jl. Lodan Timur No.7, RW.10, Ancol, Kec. Pademangan, Kota Jkt Utara, 14430",
+                                                "facilities_list": [
+                                                    "high speed wifi",
+                                                    "nice view from the window",
+                                                    "available many charging slot"
+                                                ],
+                                                "rating_score": 4.8
                                             },
                                             {
-                                                "id": "2",
-                                                "name": "Sinarmas Tower",
-                                                "description": "Working space based in Jakarta Pusat",
-                                                "tags":[
-                                                    "Jakarta Pusat"
-                                                ]
+                                                "name": "Kedasi Working Space",
+                                                "description": "Kedasi Working Space",
+                                                "capacity": 25,
+                                                "price_per_hour": 250000,
+                                                "city": "Jakarta Selatan",
+                                                "location": "Jl. Pondok Timur Mas Blok B1/10, Jakarta Selatan.",
+                                                "facilities_list": [
+                                                    "high speed wifi",
+                                                    "nice view from the window",
+                                                    "available many charging slot"
+                                                ],
+                                                "rating_score": 3.2
                                             }
                                         ]
-                                    }
                                 }
                             }
                         }
@@ -640,95 +615,51 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                "$ref": "#/components/schemas/Offices"
                             },
-                            "examples": {
-                                "Jakarta Utara": {
-                                    "description": "Example create office at Jakarta Utara",
-                                    "value": {
-                                        "name": "UnionSpace",
-                                        "description": "Working space based in Jakarta Utara",
-                                        "tags": [
-                                            "Jakarta Utara"
-                                        ]
-                                    }
-                                },
-                                "Jakarta Pusat": {
-                                    "description": "Example create office at Jakarta Pusat",
-                                    "value": {
-                                        "name": "Kedasi",
-                                        "description": "Working space based in Jakarta Pusat",
-                                        "tags": [
-                                            "Jakarta Pusat"
-                                        ]
-                                    }
+                            "example": {
+                                "data": {
+                                    "name": "Nama",
+                                    "description": "Deskripsi",
+                                    "capacity": 1,
+                                    "price_per_hour": 100,
+                                    "city": "Kota",
+                                    "location": "Lokasi",
+                                    "facilities_list": [
+                                        "fasilitas",
+                                        "fasilitas"
+                                    ],
+                                    "rating_score": 5.0
                                 }
+                                
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Success create office",
+                        "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/Offices"
                                 },
-                                "examples": {
-                                    "Jakarta Utara": {
-                                        "description": "Success create office at Jakarta Utara",
-                                        "value": {
-                                            "name": "UnionSpace",
-                                            "description": "Working space based in Jakarta Utara",
-                                            "tags": [
-                                                "Jakarta Utara"
-                                            ]
-                                        }
-                                    },
-                                    "Jakarta Pusat": {
-                                        "description": "Example create office at Jakarta Pusat",
-                                        "value": {
-                                            "name": "Kedasi",
-                                            "description": "Working space based in Jakarta Pusat",
-                                            "tags": [
-                                            "Jakarta Pusat"
-                                            ]
-                                        }
+                                "example": {
+                                    "status": "success",
+                                    "message": "Example success get all office",
+                                    "data": {
+                                        "name": "Kedasi Working Space",
+                                        "description": "Kedasi Working Space",
+                                        "capacity": 25,
+                                        "price_per_hour": 250000,
+                                        "city": "Jakarta Selatan",
+                                        "location": "Jl. Pondok Timur Mas Blok B1/10, Jakarta Selatan.",
+                                        "facilities_list": [
+                                            "high speed wifi",
+                                            "nice view from the window",
+                                            "available many charging slot"
+                                        ],
+                                        "rating_score": 3.2
                                     }
                                 }
                             }
@@ -746,73 +677,31 @@
                 "description": "Update existing office in database",
                 "parameters": [
                     {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "description": "Office id for updated",
-                        "schema": {
-                          "type": "string",
-                          "nullable": true,
-                          "minLength": 1,
-                          "maxLength": 100
-                        },
-                        "examples": {
-                          "Jakarta Utara": {
-                            "description": "Working space at Jakarta Utara",
-                            "value": "Jakarta Utara"
-                          },
-                          "Jakarta Pusat": {
-                            "description": "Working space at Jakarta Pusat",
-                            "value": "Jakarta Pusat"
-                          }
-                        }
-                      }
+                        "$ref": "#/components/parameters/Search"
+                    }
                 ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                "$ref": "#/components/schemas/Offices"
                             },
-                            "examples": {
-                                "Jakarta Utara": {
-                                    "description": "Example office at Jakarta Utara",
-                                    "value": {
-                                        "name": "UnionSpace",
-                                        "description": "Working space based in Jakarta Utara",
-                                        "tags": [
-                                            "Jakarta Utara"
-                                        ]
-                                    }
-                                },
-                                "Jakarta Pusat": {
-                                    "description": "Example office at Jakarta Pusat",
-                                    "value": {
-                                        "name": "Kedasi",
-                                        "description": "Working space based in Jakarta Pusat",
-                                        "tags": [
-                                            "Jakarta Pusat"
-                                        ]
-                                    }
+                            "example": {
+                                "data": {
+                                    "name": "Nama",
+                                    "description": "Deskripsi",
+                                    "capacity": 1,
+                                    "price_per_hour": 100,
+                                    "city": "Kota",
+                                    "location": "Lokasi",
+                                    "facilities_list": [
+                                        "fasilitas",
+                                        "fasilitas"
+                                    ],
+                                    "rating_score": 5.0
                                 }
+                                
                             }
                         }
                     }
@@ -823,45 +712,24 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type" : "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "description": {
-                                            "type": "string"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/Offices"
                                 },
-                                "examples": {
-                                    "Jakarta Utara": {
-                                        "description": "Example updated office at Jakarta Utara",
-                                        "value": {
-                                            "name": "UnionSpace",
-                                            "description": "Working space based in Jakarta Utara",
-                                            "tags": [
-                                                "Jakarta Utara"
-                                            ]
-                                        }
-                                    },
-                                    "Jakarta Pusat": {
-                                        "description": "Example updated office at Jakarta Pusat",
-                                        "value": {
-                                            "name": "Kedasi",
-                                            "description": "Working space based in Jakarta Pusat",
-                                            "tags": [
-                                                "Jakarta Pusat"
-                                            ]
-                                        }
+                                "example": {
+                                    "status": "success",
+                                    "message": "Example success update office",
+                                    "data": {
+                                        "name": "Kedasi Working Space",
+                                        "description": "Kedasi Working Space",
+                                        "capacity": 25,
+                                        "price_per_hour": 250000,
+                                        "city": "Jakarta Selatan",
+                                        "location": "Jl. Pondok Timur Mas Blok B1/10, Jakarta Selatan.",
+                                        "facilities_list": [
+                                            "high speed wifi",
+                                            "nice view from the window",
+                                            "available many charging slot"
+                                        ],
+                                        "rating_score": 3.2
                                     }
                                 }
                             }
@@ -877,27 +745,8 @@
                 "description": "Delete existing office in database",
                 "parameters": [
                     {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "description": "Office id for updated",
-                        "schema": {
-                          "type": "string",
-                          "nullable": true,
-                          "minLength": 1,
-                          "maxLength": 100
-                        },
-                        "examples": {
-                          "Jakarta Utara": {
-                            "description": "Working space at Jakarta Utara",
-                            "value": "Jakarta Utara"
-                          },
-                          "Jakarta Pusat": {
-                            "description": "Working space at Jakarta Pusat",
-                            "value": "Jakarta Pusat"
-                          }
-                        }
-                      }
+                        "$ref": "#/components/schemas/Offices"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -905,12 +754,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        }
-                                    }
+                                        "$ref": "#/components/schemas/Offices"
                                 },
                                 "examples": {
                                     "success": {
@@ -924,20 +768,15 @@
                         }
                     },
                     "404": {
-                        "description": "Failed delete not found todolist",
+                        "description": "Delete failed, Office not found",
                         "content": {
                           "application/json": {
                             "schema": {
-                              "type": "object",
-                              "properties": {
-                                "success": {
-                                  "type": "boolean"
-                                }
-                              }
+                                "$ref": "#/components/schemas/Offices"
                             },
                             "examples": {
                               "failed": {
-                                "description": "Failed delete todolist",
+                                "description": "Delete failed, Office not found",
                                 "value": {
                                   "success": false
                                 }
@@ -1319,7 +1158,7 @@
                     "Offices"
                 ],
                 "summary": "Get office by title",
-                "description": "",
+                "description": "Get office by name",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/Search"
