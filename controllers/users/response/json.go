@@ -16,7 +16,6 @@ type User struct {
 	Gender    string         `json:"gender"`
 	Email     string         `json:"email"`
 	Password  string         `json:"password"`
-	Image     string         `json:"image"`
 }
 
 func FromDomain(domain users.Domain) User {
@@ -29,6 +28,5 @@ func FromDomain(domain users.Domain) User {
 		Gender:    domain.Gender,
 		Email:     domain.Email,
 		Password:  domain.Password,
-		Image:     domain.Image,
 	}
 }

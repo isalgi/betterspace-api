@@ -2,9 +2,13 @@ package users
 
 import (
 	"backend/app/middlewares"
+	
 	"backend/businesses/users"
+
+	ctrl "backend/controllers"
 	"backend/controllers/users/request"
 	"backend/controllers/users/response"
+	
 	"net/http"
 
 	"github.com/golang-jwt/jwt"
@@ -25,60 +29,45 @@ func (ac *AuthController) Register(c echo.Context) error {
 	userInput := request.User{}
 
 	if err := c.Bind(&userInput); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "invalid request",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "invalid request")
 	}
 
 	err := userInput.Validate()
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "validation failed",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
 
 	if userInput.Password != userInput.ConfirmationPassword {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"status":  "Bad request",
-			"message": "The password and confirmation password do not match",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "password and confirmation password do not match")
 	}
 
 	user := ac.authUsecase.Register(userInput.ToDomainRegister())
 
 	if user.ID == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "email already taken",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "email already taken. please use another email or process to login.")
 	}
 
-	return c.JSON(http.StatusCreated, response.FromDomain(user))
+	return ctrl.NewResponse(c, http.StatusCreated, "success", "account created", response.FromDomain(user))
 }
 
 func (ac *AuthController) Login(c echo.Context) error {
 	userInput := request.UserLogin{}
 
 	if err := c.Bind(&userInput); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "invalid request",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "invalid request")
 	}
 
 	err := userInput.Validate()
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "validation failed",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
 
 	token := ac.authUsecase.Login(userInput.ToDomainLogin())
 
 	if token == "" {
-		return c.JSON(http.StatusUnauthorized, map[string]string{
-			"message": "invalid email or password",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
@@ -92,9 +81,7 @@ func (ac *AuthController) Logout(c echo.Context) error {
 	isListed := middlewares.CheckToken(user.Raw)
 
 	if !isListed {
-		return c.JSON(http.StatusUnauthorized, map[string]any{
-			"message": "invalid token",
-		})
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
 	middlewares.Logout(user.Raw)

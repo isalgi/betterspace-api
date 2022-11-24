@@ -8,10 +8,22 @@ type Response[T any] struct {
 	Data    T      `json:"data"`
 }
 
+type InfoResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 func NewResponse[T any](c echo.Context, statusCode int, statusMessage string, message string, data T) error {
 	return c.JSON(statusCode, Response[T]{
 		Status: statusMessage,
 		Message: message,
 		Data: data,
+	})
+}
+
+func NewInfoResponse(c echo.Context, statusCode int, statusMessage string, message string) error {
+	return c.JSON(statusCode, InfoResponse{
+		Status: statusMessage,
+		Message: message,
 	})
 }
