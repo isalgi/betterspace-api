@@ -82,3 +82,13 @@ func (ur *userRepository) GetByID(id string) users.Domain {
 
 	return user.ToDomain()
 }
+
+func (ur *userRepository) Delete(id string) bool {
+	var user users.Domain = ur.GetByID(id)
+
+	deletedUser := FromDomain(&user)
+	
+	result := ur.conn.Delete(&deletedUser)
+
+	return result.RowsAffected != 0
+}

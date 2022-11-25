@@ -29,6 +29,7 @@ type Usecase interface {
 	Login(userDomain *LoginDomain) string
 	GetAll() []Domain
 	GetByID(id string) Domain
+	Delete(id string) bool
 }
 
 type Repository interface {
@@ -36,4 +37,5 @@ type Repository interface {
 	GetByEmail(userDomain *LoginDomain) Domain
 	GetAll() []Domain
 	GetByID(id string) Domain
+	Delete(id string) bool
 }

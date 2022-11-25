@@ -2,6 +2,7 @@ package users
 
 import (
 	"backend/app/middlewares"
+	"backend/helper"
 
 	"backend/businesses/users"
 
@@ -78,8 +79,7 @@ func (ac *AuthController) Login(c echo.Context) error {
 func (ac *AuthController) GetAll(c echo.Context) error {
 	users := []response.User{}
 
-	token := c.Get("user").(*jwt.Token)
-	payload := middlewares.GetPayload(token)
+	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -96,8 +96,7 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 }
 
 func (ac *AuthController) GetByID(c echo.Context) error {
-	token := c.Get("user").(*jwt.Token)
-	payload := middlewares.GetPayload(token)
+	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
 	
@@ -114,6 +113,26 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "user found", response.FromDomain(user))
+}
+
+func (ac *AuthController) Delete(c echo.Context) error {
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	userId := payload.ID
+	
+	id := c.Param("id")
+
+	if (role == "user") && (id != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+	}
+
+	isSuccess := ac.authUsecase.Delete(id)
+
+	if !isSuccess {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "user deleted")
 }
 
 func (ac *AuthController) Logout(c echo.Context) error {
