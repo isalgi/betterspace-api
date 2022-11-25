@@ -7,7 +7,7 @@ import (
 )
 
 type Domain struct {
-	ID        	string
+	ID        	uint
 	CreatedAt 	time.Time
 	UpdatedAt 	time.Time
 	DeletedAt 	gorm.DeletedAt

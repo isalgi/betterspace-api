@@ -44,7 +44,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 
 	user := ac.authUsecase.Register(userInput.ToDomainRegister())
 
-	if user.ID == "" {
+	if user.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "email already taken. please use another email or process to login.")
 	}
 

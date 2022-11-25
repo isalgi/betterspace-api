@@ -21,16 +21,16 @@ func (uu *UserUsecase) Register(userDomain *Domain) Domain {
 func (uu *UserUsecase) Login(userDomain *LoginDomain) string {
 	user := uu.userRepository.GetByEmail(userDomain)
 
-	if user.ID == "" {
+	if user.ID == 0 {
 		return ""
 	}
 
 	if user.Roles == "admin" {
-		token := uu.jwtAuth.GenerateAdminToken(user.ID)
+		token := uu.jwtAuth.GenerateAdminToken(int(user.ID))
 		return token
 	}
 
-	token := uu.jwtAuth.GenerateToken(user.ID)
+	token := uu.jwtAuth.GenerateToken(int(user.ID))
 
 	return token
 }

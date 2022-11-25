@@ -10,7 +10,7 @@ import (
 var whiteList []string = make([]string, 5)
 
 type JwtCustomClaims struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 	jwt.StandardClaims
 	Roles string `json:"roles"`
 }
@@ -27,7 +27,7 @@ func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	}
 }
 
-func (jwtConf *ConfigJWT) GenerateToken(userID string) string {
+func (jwtConf *ConfigJWT) GenerateToken(userID int) string {
 	claims := JwtCustomClaims {
 		userID,
 		jwt.StandardClaims{
@@ -44,7 +44,7 @@ func (jwtConf *ConfigJWT) GenerateToken(userID string) string {
 	return token
 }
 
-func (jwtConf *ConfigJWT) GenerateAdminToken(adminID string) string {
+func (jwtConf *ConfigJWT) GenerateAdminToken(adminID int) string {
 	claims := JwtCustomClaims {
 		adminID,
 		jwt.StandardClaims{
@@ -54,7 +54,7 @@ func (jwtConf *ConfigJWT) GenerateAdminToken(adminID string) string {
 	}
 
 	//create token with claims
-	t := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
 	whiteList = append(whiteList, token)
 
