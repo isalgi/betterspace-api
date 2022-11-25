@@ -2,13 +2,13 @@ package users
 
 import (
 	"backend/app/middlewares"
-	
+
 	"backend/businesses/users"
 
 	ctrl "backend/controllers"
 	"backend/controllers/users/request"
 	"backend/controllers/users/response"
-	
+
 	"net/http"
 
 	"github.com/golang-jwt/jwt"
@@ -44,7 +44,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 
 	user := ac.authUsecase.Register(userInput.ToDomainRegister())
 
-	if user.ID == "" {
+	if user.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "email already taken. please use another email or process to login.")
 	}
 
@@ -73,6 +73,26 @@ func (ac *AuthController) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]any{
 		"token": token,
 	})
+}
+
+func (ac *AuthController) GetAll(c echo.Context) error {
+	users := []response.User{}
+
+	token := c.Get("user").(*jwt.Token)
+	payload := middlewares.GetPayload(token)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+	}
+
+	usersData := ac.authUsecase.GetAll()
+
+	for _, user := range usersData {
+		users = append(users, response.FromDomain(user))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all users", users)
 }
 
 func (ac *AuthController) Logout(c echo.Context) error {

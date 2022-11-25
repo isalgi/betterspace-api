@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID        string         `json:"id" gorm:"primaryKey"`
+	ID        uint         `json:"id" gorm:"primaryKey"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
@@ -16,6 +16,8 @@ type User struct {
 	Gender    string         `json:"gender"`
 	Email     string         `json:"email"`
 	Password  string         `json:"password"`
+	Image	  string 	`json:"image" form:"image"`
+	Roles 	  string	`json:"roles"`
 }
 
 func FromDomain(domain users.Domain) User {
@@ -28,5 +30,7 @@ func FromDomain(domain users.Domain) User {
 		Gender:    domain.Gender,
 		Email:     domain.Email,
 		Password:  domain.Password,
+		Image: domain.Image,
+		Roles: domain.Roles,
 	}
 }

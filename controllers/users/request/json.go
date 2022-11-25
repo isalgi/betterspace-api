@@ -12,6 +12,8 @@ type User struct {
 	Email					string `json:"email" validate:"required,email"`
 	Password				string `json:"password" validate:"required"`
 	ConfirmationPassword	string `json:"confirmation_password" validate:"required"`
+	Image 					string `json:"image" form:"image"`
+	Roles 					string `json:"roles"`
 }
 
 type UserLogin struct {

@@ -7,7 +7,7 @@ import (
 )
 
 type Domain struct {
-	ID        	string
+	ID        	uint
 	CreatedAt 	time.Time
 	UpdatedAt 	time.Time
 	DeletedAt 	gorm.DeletedAt
@@ -27,9 +27,11 @@ type LoginDomain struct {
 type Usecase interface {
 	Register(userDomain *Domain) Domain
 	Login(userDomain *LoginDomain) string
+	GetAll() []Domain
 }
 
 type Repository interface {
 	Register(userDomain *Domain) Domain
 	GetByEmail(userDomain *LoginDomain) Domain
+	GetAll() []Domain
 }
