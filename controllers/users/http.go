@@ -95,6 +95,27 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 	return ctrl.NewResponse(c, http.StatusOK, "success", "all users", users)
 }
 
+func (ac *AuthController) GetByID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	payload := middlewares.GetPayload(token)
+	role := payload.Roles
+	userId := payload.ID
+	
+	id := c.Param("id")
+
+	if (role == "user") && (id != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+	}
+
+	user := ac.authUsecase.GetByID(id)
+
+	if user.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "user found", response.FromDomain(user))
+}
+
 func (ac *AuthController) Logout(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 

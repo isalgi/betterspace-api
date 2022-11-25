@@ -74,3 +74,11 @@ func (ur *userRepository) GetAll() []users.Domain {
 
 	return userDomain
 }
+
+func (ur *userRepository) GetByID(id string) users.Domain {
+	var user User
+
+	ur.conn.First(&user, "id = ?", id)
+
+	return user.ToDomain()
+}

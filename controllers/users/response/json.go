@@ -17,7 +17,6 @@ type User struct {
 	Email     string         `json:"email"`
 	Password  string         `json:"password"`
 	Image	  string 	`json:"image" form:"image"`
-	Roles 	  string	`json:"roles"`
 }
 
 func FromDomain(domain users.Domain) User {
@@ -31,6 +30,5 @@ func FromDomain(domain users.Domain) User {
 		Email:     domain.Email,
 		Password:  domain.Password,
 		Image: domain.Image,
-		Roles: domain.Roles,
 	}
 }

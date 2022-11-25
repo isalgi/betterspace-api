@@ -36,3 +36,7 @@ func (uu *UserUsecase) Login(userDomain *LoginDomain) string {
 func (uu *UserUsecase) GetAll() []Domain {
 	return uu.userRepository.GetAll()
 }
+
+func (uu *UserUsecase) GetByID(id string) Domain {
+	return uu.userRepository.GetByID(id)
+}

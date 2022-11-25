@@ -16,13 +16,13 @@ type ControllerList struct {
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	e.Use(cl.LoggerMiddleware)
 
-	beginning := e.Group("/api/v1")
-	beginning.POST("/register", cl.AuthController.Register).Name = "user-register"
-	beginning.POST("/login", cl.AuthController.Login).Name = "user-login"
+	e.POST("/api/v1/register", cl.AuthController.Register)
+	e.POST("/api/v1/login", cl.AuthController.Login)
 
-	admins := e.Group("/api/v1/admin", middleware.JWTWithConfig(cl.JWTMiddleware))
-	admins.GET("/users", cl.AuthController.GetAll).Name = "get-all-user"
+	users := e.Group("/api/v1/users", middleware.JWTWithConfig(cl.JWTMiddleware))
+	users.GET("", cl.AuthController.GetAll).Name = "get-all-user"
+	users.GET("/:id", cl.AuthController.GetByID).Name = "get-user-by-id"
 
-	auth := e.Group("/api/v1/users", middleware.JWTWithConfig(cl.JWTMiddleware))
+	auth := e.Group("/api/v1", middleware.JWTWithConfig(cl.JWTMiddleware))
 	auth.POST("/logout", cl.AuthController.Logout).Name = "user-logout"
 }
