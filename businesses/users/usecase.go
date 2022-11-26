@@ -44,3 +44,7 @@ func (uu *UserUsecase) GetByID(id string) Domain {
 func (uu *UserUsecase) Delete(id string) bool {
 	return uu.userRepository.Delete(id)
 }
+
+func (uu *UserUsecase) UpdateProfilePhoto(id string, userDomain *PhotoDomain) bool {
+	return uu.userRepository.InsertURLtoUser(id, userDomain)
+}

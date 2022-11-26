@@ -3,6 +3,8 @@ package users
 import (
 	"backend/app/middlewares"
 	"backend/helper"
+	"context"
+	"log"
 
 	"backend/businesses/users"
 
@@ -100,13 +102,13 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	role := payload.Roles
 	userId := payload.ID
 	
-	id := c.Param("id")
+	paramsId := c.Param("id")
 
-	if (role == "user") && (id != userId) {
+	if (role == "user") && (paramsId != userId) {
 		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
 	}
 
-	user := ac.authUsecase.GetByID(id)
+	user := ac.authUsecase.GetByID(paramsId)
 
 	if user.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
@@ -120,19 +122,92 @@ func (ac *AuthController) Delete(c echo.Context) error {
 	role := payload.Roles
 	userId := payload.ID
 	
-	id := c.Param("id")
+	paramsId := c.Param("id")
 
-	if (role == "user") && (id != userId) {
+	if (role == "user") && (paramsId != userId) {
 		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
 	}
 
-	isSuccess := ac.authUsecase.Delete(id)
+	isSuccess := ac.authUsecase.Delete(paramsId)
 
 	if !isSuccess {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
 	}
 
 	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "user deleted")
+}
+
+func(ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	userId := payload.ID
+	
+	paramsId := c.Param("id")
+
+	if (role == "user") && (paramsId != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
+	}
+
+	getUser := ac.authUsecase.GetByID(paramsId)
+
+	if getUser.ID == 0 {
+		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "user not found", "")
+	}
+
+	input := request.UserPhoto{}
+
+	if err := c.Bind(&input); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
+	}
+
+	fileInput, err := c.FormFile("photo")
+
+	// validating input
+	switch err {
+		case nil:
+			// do nothing
+		case http.ErrMissingFile:
+			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "no file attached")
+		default:
+			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
+    }
+
+	isFileAllowed, isFileAllowedMessage := helper.CheckExtension(fileInput)
+
+	if !isFileAllowed {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", isFileAllowedMessage)
+	}
+
+	src, err := fileInput.Open()
+	
+	if err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
+	}
+
+	defer src.Close()
+	
+	ctx := context.Background()
+
+	url, err := helper.CloudinaryUpload(ctx, src, paramsId)
+	
+	if err != nil {
+		log.Println(err)
+		return ctrl.NewInfoResponse(c, http.StatusConflict, "failed", "upload to cloudinary failed")
+	}
+
+	input.Photo = url
+
+	if err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
+	}
+
+	isSuccess := ac.authUsecase.UpdateProfilePhoto(paramsId, input.ToDomainPhoto())
+
+	if !isSuccess {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "failed to update")
+	}
+
+	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "profile photo updated")
 }
 
 func (ac *AuthController) Logout(c echo.Context) error {

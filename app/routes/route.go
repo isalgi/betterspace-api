@@ -23,6 +23,7 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	users.GET("", cl.AuthController.GetAll).Name = "get-all-user"
 	users.GET("/:id", cl.AuthController.GetByID).Name = "get-user-by-id"
 	users.DELETE("/:id", cl.AuthController.Delete).Name = "delete-user-account"
+	users.PUT("/profile-photo/:id", cl.AuthController.UpdateProfilePhoto).Name = "update-user-profile-photo"
 
 	auth := e.Group("/api/v1", middleware.JWTWithConfig(cl.JWTMiddleware))
 	auth.POST("/logout", cl.AuthController.Logout).Name = "user-logout"

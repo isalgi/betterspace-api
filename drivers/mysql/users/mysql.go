@@ -3,7 +3,7 @@ package users
 import (
 	"backend/businesses/users"
 	"fmt"
-
+	
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -24,7 +24,7 @@ func (ur *userRepository) Register(userDomain *users.Domain) users.Domain {
 	rec := FromDomain(userDomain)
 
 	rec.Password = string(password)
-	rec.Image = ""
+	rec.Photo = ""
 	rec.Roles = "user"
 
 	var user User
@@ -91,4 +91,15 @@ func (ur *userRepository) Delete(id string) bool {
 	result := ur.conn.Delete(&deletedUser)
 
 	return result.RowsAffected != 0
+}
+
+func (ur *userRepository) InsertURLtoUser(id string, userDomain *users.PhotoDomain) bool {
+	var user users.Domain = ur.GetByID(id)
+
+	if user.ID == 0 {
+		return false
+	}
+
+	ur.conn.Where("id = ?", user.ID).Select("photo").Updates(User{Photo: userDomain.Photo})
+	return true
 }
