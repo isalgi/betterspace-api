@@ -85,7 +85,7 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 	role := payload.Roles
 	
 	if role != "admin" {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
 	}
 
 	usersData := ac.authUsecase.GetAll()
@@ -105,7 +105,7 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	paramsId := c.Param("id")
 
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
 	}
 
 	user := ac.authUsecase.GetByID(paramsId)
@@ -125,7 +125,7 @@ func (ac *AuthController) Delete(c echo.Context) error {
 	paramsId := c.Param("id")
 
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "forbidden")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
 	}
 
 	isSuccess := ac.authUsecase.Delete(paramsId)
