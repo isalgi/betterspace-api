@@ -10,7 +10,7 @@ import (
 var whiteList []string = make([]string, 5)
 
 type JwtCustomClaims struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 	jwt.StandardClaims
 	Roles string `json:"roles"`
 }
