@@ -26,7 +26,8 @@ func CheckExtension(fileInput *multipart.FileHeader) (bool, string) {
 		}
 	}
 	
-	allowedSize := 2.2 * 1024 * 1024 //allowedSize = (allowed size for uploading = 2.1 MB) * (1 KB = 1024 bytes) * (1024 bytes)
+	//allowedSize = (allowed size for uploading = 2.1 MB) * (1 KB = 1024 bytes) * (1024 bytes)
+	allowedSize := 2.2 * 1024 * 1024
 
 	if fileSize > int64(allowedSize) {
 		isFileAllowed = false

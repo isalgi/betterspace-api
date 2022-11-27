@@ -4,6 +4,7 @@ import (
 	"backend/app/middlewares"
 	"backend/helper"
 	"context"
+	"fmt"
 	"log"
 
 	"backend/businesses/users"
@@ -14,6 +15,7 @@ import (
 
 	"net/http"
 
+	passwordvalidator "github.com/wagslane/go-password-validator"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
@@ -41,14 +43,22 @@ func (ac *AuthController) Register(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
 
+	// confirm password input
 	if userInput.Password != userInput.ConfirmationPassword {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "password and confirmation password do not match")
+	}
+
+	const minEntropyBits = 45
+	err = passwordvalidator.Validate(userInput.Password, minEntropyBits)
+	
+	if err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
 	}
 
 	user := ac.authUsecase.Register(userInput.ToDomainRegister())
 
 	if user.ID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "email already taken. please use another email or process to login.")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "email already taken, please use another email or process to login")
 	}
 
 	return ctrl.NewResponse(c, http.StatusCreated, "success", "account created", response.FromDomain(user))
@@ -85,7 +95,7 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 	role := payload.Roles
 	
 	if role != "admin" {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
 	}
 
 	usersData := ac.authUsecase.GetAll()
@@ -105,7 +115,7 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	paramsId := c.Param("id")
 
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
 	}
 
 	user := ac.authUsecase.GetByID(paramsId)
@@ -125,7 +135,7 @@ func (ac *AuthController) Delete(c echo.Context) error {
 	paramsId := c.Param("id")
 
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
 	}
 
 	isSuccess := ac.authUsecase.Delete(paramsId)
@@ -145,13 +155,13 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	paramsId := c.Param("id")
 
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info.  check user id params.")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
 	}
 
 	getUser := ac.authUsecase.GetByID(paramsId)
 
 	if getUser.ID == 0 {
-		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "user not found", "")
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
 	}
 
 	input := request.UserPhoto{}
@@ -219,7 +229,7 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 
 	// preventing user from updating another user data
 	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info. check user id params.")
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
 	}
 
 	userData := ac.authUsecase.GetByID(paramsId)
@@ -236,7 +246,7 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 
 	// check if body request is filled or not
 	if input.FullName == "" && input.Gender == "" && input.Email == "" {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed. please input data in body request.")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed, please input data in body request")
 	}
 
 	// if full_name in body request is null
@@ -263,7 +273,7 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed. check body request.")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed, check body request.")
 	}
 
 	user := ac.authUsecase.UpdateProfileData(paramsId, input.ToDomainRegister())
@@ -282,7 +292,5 @@ func (ac *AuthController) Logout(c echo.Context) error {
 
 	middlewares.Logout(user.Raw)
 
-	return c.JSON(http.StatusOK, map[string]any{
-		"message": "logout success",
-	})
+	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "logout success")
 }
