@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	FullName             string `json:"full_name" validate:"required"`
-	Gender               string `json:"gender" validate:"required"`
+	Gender               string `json:"gender" validate:"required,oneof=female male"`
 	Email                string `json:"email" validate:"required,email"`
 	Password             string `json:"password" validate:"required"`
 	ConfirmationPassword string `json:"confirmation_password" validate:"required"`

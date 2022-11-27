@@ -34,6 +34,7 @@ type Usecase interface {
 	GetAll() []Domain
 	GetByID(id string) Domain
 	Delete(id string) bool
+	UpdateProfileData(id string, userDomain *Domain) Domain
 	UpdateProfilePhoto(id string, userDomain *PhotoDomain) bool
 }
 
@@ -43,5 +44,6 @@ type Repository interface {
 	GetAll() []Domain
 	GetByID(id string) Domain
 	Delete(id string) bool
+	UpdateProfileData(id string, userDomain *Domain) Domain
 	InsertURLtoUser(id string, userDomain *PhotoDomain) bool
 }

@@ -103,3 +103,19 @@ func (ur *userRepository) InsertURLtoUser(id string, userDomain *users.PhotoDoma
 	ur.conn.Where("id = ?", user.ID).Select("photo").Updates(User{Photo: userDomain.Photo})
 	return true
 }
+
+func (ur *userRepository) UpdateProfileData(id string, userDomain *users.Domain) users.Domain {
+	user := ur.GetByID(id)
+
+	updatedUser := FromDomain(&user)
+	updatedUser.FullName = userDomain.FullName
+	updatedUser.Email = userDomain.Email
+	// updatedUser.Password = updatedUser.Password
+	updatedUser.Gender = userDomain.Gender
+	// updatedUser.Photo = userDomain.Photo
+	// updatedUser.Roles = updatedUser.Roles
+
+	ur.conn.Where("id = ?", user.ID).Select("full_name","email", "gender").Updates(User{FullName: userDomain.FullName, Email: userDomain.Email, Gender: userDomain.Gender})
+
+	return updatedUser.ToDomain()
+}
