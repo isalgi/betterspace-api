@@ -22,7 +22,7 @@ func IsFileAllowed(fileInput *multipart.FileHeader) (bool, string) {
 			break
 		} else {
 			isFileAllowed = false
-			msg = "file extension is not allowed. please upload in .jpeg or .jpg format"
+			msg = "file extension is not allowed, please upload in .jpeg or .jpg format"
 		}
 	}
 	
@@ -31,7 +31,7 @@ func IsFileAllowed(fileInput *multipart.FileHeader) (bool, string) {
 
 	if fileSize > int64(allowedSize) {
 		isFileAllowed = false
-		msg = "file size is not allowed. please upload file under 2 MB"
+		msg = "file size is not allowed, please upload file under 2 MB"
 	}
 
 

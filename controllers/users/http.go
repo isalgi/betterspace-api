@@ -217,7 +217,7 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "failed to update")
 	}
 
-	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "profile photo updated")
+	return ctrl.NewResponse(c, http.StatusOK, "success", "profile photo updated", url)
 }
 
 func (ac *AuthController) UpdateProfileData(c echo.Context) error {
