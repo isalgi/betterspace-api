@@ -110,10 +110,7 @@ func (ur *userRepository) UpdateProfileData(id string, userDomain *users.Domain)
 	updatedUser := FromDomain(&user)
 	updatedUser.FullName = userDomain.FullName
 	updatedUser.Email = userDomain.Email
-	// updatedUser.Password = updatedUser.Password
 	updatedUser.Gender = userDomain.Gender
-	// updatedUser.Photo = userDomain.Photo
-	// updatedUser.Roles = updatedUser.Roles
 
 	ur.conn.Where("id = ?", user.ID).Select("full_name","email", "gender").Updates(User{FullName: userDomain.FullName, Email: userDomain.Email, Gender: userDomain.Gender})
 

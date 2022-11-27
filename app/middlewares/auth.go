@@ -10,25 +10,25 @@ import (
 var whiteList []string = make([]string, 5)
 
 type JwtCustomClaims struct {
-	ID int `json:"id"`
+	ID    string `json:"id"`
 	jwt.StandardClaims
 	Roles string `json:"roles"`
 }
 
 type ConfigJWT struct {
-	SecretJWT 		string
+	SecretJWT       string
 	ExpiresDuration int
 }
 
 func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	return middleware.JWTConfig{
-		Claims: &JwtCustomClaims{},
+		Claims:     &JwtCustomClaims{},
 		SigningKey: []byte(jwtConf.SecretJWT),
 	}
 }
 
 func (jwtConf *ConfigJWT) GenerateToken(userID string, roles string) string {
-	claims := JwtCustomClaims {
+	claims := JwtCustomClaims{
 		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
