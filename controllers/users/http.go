@@ -180,9 +180,9 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "no file attached")
 		default:
 			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
-    }
+	}
 
-	isFileAllowed, isFileAllowedMessage := helper.CheckExtension(fileInput)
+	isFileAllowed, isFileAllowedMessage := helper.IsFileAllowed(fileInput)
 
 	if !isFileAllowed {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", isFileAllowedMessage)
@@ -273,7 +273,7 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed, check body request.")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed, check body request")
 	}
 
 	user := ac.authUsecase.UpdateProfileData(paramsId, input.ToDomainRegister())

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func CheckExtension(fileInput *multipart.FileHeader) (bool, string) {
+func IsFileAllowed(fileInput *multipart.FileHeader) (bool, string) {
 	fileName := fileInput.Filename
 	fileSize := fileInput.Size
 	fileExtension := fileName[len(fileName)-5:]
