@@ -16,7 +16,7 @@ type User struct {
 	Email     string         `json:"email" gorm:"unique" faker:"email"`
 	Password  string         `json:"password" faker:"password"`
 	Gender    string         `json:"gender"`
-	Image     string         `json:"image"`
+	Photo     string         `json:"photo"`
 	Roles     string         `json:"roles"`
 }
 
@@ -30,7 +30,7 @@ func FromDomain(domain *users.Domain) *User {
 		Gender:    domain.Gender,
 		Email:     domain.Email,
 		Password:  domain.Email,
-		Image:     domain.Image,
+		Photo:     domain.Photo,
 		Roles:     domain.Roles,
 	}
 }
@@ -42,7 +42,7 @@ func (rec *User) ToDomain() users.Domain {
 		Email:     rec.Email,
 		Password:  rec.Password,
 		Gender:    rec.Gender,
-		Image:     rec.Image,
+		Photo:     rec.Photo,
 		Roles:     rec.Roles,
 		CreatedAt: rec.CreatedAt,
 		UpdatedAt: rec.UpdatedAt,

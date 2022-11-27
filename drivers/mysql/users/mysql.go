@@ -22,8 +22,9 @@ func (ur *userRepository) Register(userDomain *users.Domain) users.Domain {
 	password, _ := bcrypt.GenerateFromPassword([]byte(userDomain.Password), bcrypt.DefaultCost)
 
 	rec := FromDomain(userDomain)
+
 	rec.Password = string(password)
-	rec.Image = ""
+	rec.Photo = ""
 	rec.Roles = "user"
 
 	var user User
@@ -58,4 +59,63 @@ func (ur *userRepository) GetByEmail(userDomain *users.LoginDomain) users.Domain
 	}
 
 	return user.ToDomain()
+}
+
+func (ur *userRepository) GetAll() []users.Domain {
+	var rec []User
+
+	ur.conn.Find(&rec)
+
+	userDomain := []users.Domain{}
+
+	for _, user := range rec {
+		userDomain = append(userDomain, user.ToDomain())
+	}
+
+	return userDomain
+}
+
+func (ur *userRepository) GetByID(id string) users.Domain {
+	var user User
+
+	ur.conn.First(&user, "id = ?", id)
+
+	return user.ToDomain()
+}
+
+func (ur *userRepository) Delete(id string) bool {
+	var user users.Domain = ur.GetByID(id)
+
+	deletedUser := FromDomain(&user)
+	
+	result := ur.conn.Delete(&deletedUser)
+
+	return result.RowsAffected != 0
+}
+
+func (ur *userRepository) InsertURLtoUser(id string, userDomain *users.PhotoDomain) bool {
+	var user users.Domain = ur.GetByID(id)
+
+	if user.ID == 0 {
+		return false
+	}
+
+	ur.conn.Where("id = ?", user.ID).Select("photo").Updates(User{Photo: userDomain.Photo})
+	return true
+}
+
+func (ur *userRepository) UpdateProfileData(id string, userDomain *users.Domain) users.Domain {
+	user := ur.GetByID(id)
+
+	updatedUser := FromDomain(&user)
+	updatedUser.FullName = userDomain.FullName
+	updatedUser.Email = userDomain.Email
+	// updatedUser.Password = updatedUser.Password
+	updatedUser.Gender = userDomain.Gender
+	// updatedUser.Photo = userDomain.Photo
+	// updatedUser.Roles = updatedUser.Roles
+
+	ur.conn.Where("id = ?", user.ID).Select("full_name","email", "gender").Updates(User{FullName: userDomain.FullName, Email: userDomain.Email, Gender: userDomain.Gender})
+
+	return updatedUser.ToDomain()
 }

@@ -27,30 +27,13 @@ func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	}
 }
 
-func (jwtConf *ConfigJWT) GenerateToken(userID int) string {
+func (jwtConf *ConfigJWT) GenerateToken(userID string, roles string) string {
 	claims := JwtCustomClaims {
 		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
 		},
-		"user",
-	}
-
-	//create token with claims
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
-	whiteList = append(whiteList, token)
-
-	return token
-}
-
-func (jwtConf *ConfigJWT) GenerateAdminToken(adminID int) string {
-	claims := JwtCustomClaims {
-		adminID,
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
-		},
-		"admin",
+		roles,
 	}
 
 	//create token with claims
@@ -71,13 +54,7 @@ func CheckToken(token string) bool {
 	return false
 }
 
-func GetUser(token *jwt.Token) *JwtCustomClaims {
-	isListed := CheckToken(token.Raw)
-	
-	if !isListed {
-		return nil
-	}
-
+func GetPayload(token *jwt.Token) *JwtCustomClaims {
 	claims := token.Claims.(*JwtCustomClaims)
 
 	return claims
