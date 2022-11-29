@@ -47,10 +47,6 @@ func (uu *UserUsecase) Token(userId string, roles string) map[string]string {
 	return tokenPair
 }
 
-// func (uu *UserUsecase) Token(tokenInput string) middlewares.Response {
-// 	return 
-// }
-
 func (uu *UserUsecase) GetAll() []Domain {
 	return uu.userRepository.GetAll()
 }
@@ -68,5 +64,12 @@ func (uu *UserUsecase) UpdateProfilePhoto(id string, userDomain *PhotoDomain) bo
 }
 
 func (uu *UserUsecase) UpdateProfileData(id string, userDomain *Domain) Domain {
+	isEmailExist := uu.userRepository.GetByEmailOnly(userDomain.Email)
+
+	if isEmailExist {
+		userDomain.ID = 0
+		return *userDomain
+	}
+
 	return uu.userRepository.UpdateProfileData(id, userDomain)
 }

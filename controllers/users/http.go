@@ -346,6 +346,10 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 
 	user := ac.authUsecase.UpdateProfileData(paramsId, input.ToDomainRegister())
 
+	if user.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "duplicate email")
+	}
+
 	return ctrl.NewResponse(c, http.StatusOK, "success", "profile updated", response.FromDomain(user))
 }
 
