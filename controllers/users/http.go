@@ -89,6 +89,14 @@ func (ac *AuthController) Login(c echo.Context) error {
 }
 
 func (ac *AuthController) GetAll(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	users := []response.User{}
 
 	payload := helper.GetPayloadInfo(c)
@@ -108,6 +116,14 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 }
 
 func (ac *AuthController) GetByID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -128,6 +144,14 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 }
 
 func (ac *AuthController) Delete(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -148,6 +172,14 @@ func (ac *AuthController) Delete(c echo.Context) error {
 }
 
 func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -221,6 +253,14 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 }
 
 func (ac *AuthController) UpdateProfileData(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
