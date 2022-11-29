@@ -48,7 +48,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "password and confirmation password do not match")
 	}
 
-	const minEntropyBits = 45
+	const minEntropyBits = 30
 	err = passwordvalidator.Validate(userInput.Password, minEntropyBits)
 	
 	if err != nil {
@@ -282,15 +282,15 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 }
 
 func (ac *AuthController) Logout(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
+	token := c.Get("user").(*jwt.Token)
 
-	isListed := middlewares.CheckToken(user.Raw)
+	isListed := middlewares.CheckToken(token.Raw)
 
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	middlewares.Logout(user.Raw)
+	middlewares.Logout(token.Raw)
 
 	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "logout success")
 }
