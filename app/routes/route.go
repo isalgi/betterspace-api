@@ -18,6 +18,7 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 
 	e.POST("/api/v1/register", cl.AuthController.Register)
 	e.POST("/api/v1/login", cl.AuthController.Login)
+	e.POST("/api/v1/refresh", cl.AuthController.Token, middleware.JWTWithConfig(cl.JWTMiddleware))
 
 	users := e.Group("/api/v1/users", middleware.JWTWithConfig(cl.JWTMiddleware))
 	users.GET("", cl.AuthController.GetAll).Name = "get-all-user"

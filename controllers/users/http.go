@@ -79,12 +79,42 @@ func (ac *AuthController) Login(c echo.Context) error {
 
 	token := ac.authUsecase.Login(userInput.ToDomainLogin())
 
-	if token == "" {
+	if token["access_token"] == "" {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"token": token,
+		"access_token": token["access_token"],
+		"refresh_token": token["refresh_token"],
+	})
+}
+
+func (ac *AuthController) Token(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckRefreshToken(user.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid refresh token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	id := payload.ID
+	getUser := ac.authUsecase.GetByID(id)
+
+	if getUser.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	token := ac.authUsecase.Token(id, getUser.Roles)
+
+	if token["access_token"] == "" {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"access_token": token["access_token"],
+		"refresh_token": token["refresh_token"],
 	})
 }
 
