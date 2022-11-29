@@ -3,10 +3,10 @@ package mysql_driver
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"backend/drivers/mysql/users"
 
-	_utils "backend/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -24,11 +24,11 @@ func (config *ConfigDB) InitDB() *gorm.DB {
 	loc := "Asia%2FJakarta"
 
 	var dsn string = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=%s",
-		_utils.GetConfig("DB_USERNAME"),
-		_utils.GetConfig("DB_PASSWORD"),
-		_utils.GetConfig("DB_HOST"),
-		_utils.GetConfig("DB_PORT"),
-		_utils.GetConfig("DB_NAME"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
 		loc,
 	)
 
