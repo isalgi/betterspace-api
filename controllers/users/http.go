@@ -30,6 +30,10 @@ func NewAuthController(authUC users.Usecase) *AuthController {
 	}
 }
 
+func (ac *AuthController) HelloMessage(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello there! This is API for Better Space. Better Space is an Office Booking System Alterra Capstone Project Batch 3 by Group 3. Please refer to the documentation for details about all of the requests.")
+}
+
 func (ac *AuthController) Register(c echo.Context) error {
 	userInput := request.User{}
 
