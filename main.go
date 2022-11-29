@@ -59,7 +59,7 @@ func main() {
 		port = DEFAULT_PORT
 	}
 
-	var appPort string = fmt.Sprintf(":%s", DEFAULT_PORT)
+	var appPort string = fmt.Sprintf(":%s", port)
 
 	app.Logger.Fatal(app.Start(appPort))
 }
