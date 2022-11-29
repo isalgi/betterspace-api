@@ -160,14 +160,14 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	
 	paramsId := c.Param("id")
 
-	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
-	}
-
 	user := ac.authUsecase.GetByID(paramsId)
 
 	if user.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	if (role == "user") && (paramsId != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "user found", response.FromDomain(user))
@@ -210,20 +210,19 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
-	role := payload.Roles
-	userId := payload.ID
-	
 	paramsId := c.Param("id")
-
-	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
-	}
-
 	getUser := ac.authUsecase.GetByID(paramsId)
 
 	if getUser.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	userId := payload.ID
+	
+	if (role == "user") && (paramsId != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
 	}
 
 	input := request.UserPhoto{}
@@ -290,22 +289,21 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
-	
-	payload := helper.GetPayloadInfo(c)
-	role := payload.Roles
-	userId := payload.ID
-	
+
 	paramsId := c.Param("id")
-
-	// preventing user from updating another user data
-	if (role == "user") && (paramsId != userId) {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
-	}
-
 	userData := ac.authUsecase.GetByID(paramsId)
 
 	if userData.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+	
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	userId := payload.ID
+
+	// preventing user from updating another user data
+	if (role == "user") && (paramsId != userId) {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info, check user id parameter")
 	}
 
 	input := request.User{}
