@@ -48,7 +48,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "password and confirmation password do not match")
 	}
 
-	const minEntropyBits = 45
+	const minEntropyBits = 30
 	err = passwordvalidator.Validate(userInput.Password, minEntropyBits)
 	
 	if err != nil {
@@ -79,16 +79,54 @@ func (ac *AuthController) Login(c echo.Context) error {
 
 	token := ac.authUsecase.Login(userInput.ToDomainLogin())
 
-	if token == "" {
+	if token["access_token"] == "" {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
 	}
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"token": token,
+		"access_token": token["access_token"],
+		"refresh_token": token["refresh_token"],
+	})
+}
+
+func (ac *AuthController) Token(c echo.Context) error {
+	user := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckRefreshToken(user.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid refresh token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	id := payload.ID
+	getUser := ac.authUsecase.GetByID(id)
+
+	if getUser.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	}
+
+	token := ac.authUsecase.Token(id, getUser.Roles)
+
+	if token["access_token"] == "" {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"access_token": token["access_token"],
+		"refresh_token": token["refresh_token"],
 	})
 }
 
 func (ac *AuthController) GetAll(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	users := []response.User{}
 
 	payload := helper.GetPayloadInfo(c)
@@ -108,6 +146,14 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 }
 
 func (ac *AuthController) GetByID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -128,6 +174,14 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 }
 
 func (ac *AuthController) Delete(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -148,6 +202,14 @@ func (ac *AuthController) Delete(c echo.Context) error {
 }
 
 func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -221,6 +283,14 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 }
 
 func (ac *AuthController) UpdateProfileData(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	payload := helper.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
@@ -282,15 +352,15 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 }
 
 func (ac *AuthController) Logout(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
+	token := c.Get("user").(*jwt.Token)
 
-	isListed := middlewares.CheckToken(user.Raw)
+	isListed := middlewares.CheckToken(token.Raw)
 
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	middlewares.Logout(user.Raw)
+	middlewares.Logout(token.Raw)
 
 	return ctrl.NewInfoResponse(c, http.StatusOK, "success", "logout success")
 }

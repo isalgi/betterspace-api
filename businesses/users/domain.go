@@ -30,7 +30,8 @@ type PhotoDomain struct {
 
 type Usecase interface {
 	Register(userDomain *Domain) Domain
-	Login(userDomain *LoginDomain) string
+	Login(userDomain *LoginDomain) map[string]string
+	Token(userId string, roles string) map[string]string
 	GetAll() []Domain
 	GetByID(id string) Domain
 	Delete(id string) bool

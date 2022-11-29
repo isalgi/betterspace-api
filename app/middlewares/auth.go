@@ -7,7 +7,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var whiteList []string = make([]string, 5)
+var tokenList []string = make([]string, 5)
+var refreshTokenList []string = make([]string, 5)
 
 type JwtCustomClaims struct {
 	ID    string `json:"id"`
@@ -20,6 +21,11 @@ type ConfigJWT struct {
 	ExpiresDuration int
 }
 
+type TokenPair struct {
+	AccessToken string
+	RefreshToken string
+}
+
 func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	return middleware.JWTConfig{
 		Claims:     &JwtCustomClaims{},
@@ -27,8 +33,8 @@ func (jwtConf *ConfigJWT) Init() middleware.JWTConfig {
 	}
 }
 
-func (jwtConf *ConfigJWT) GenerateToken(userID string, roles string) string {
-	claims := JwtCustomClaims{
+func (jwtConf *ConfigJWT) GenerateTokenPair(userID string, roles string) TokenPair {
+	tokenClaims := JwtCustomClaims{
 		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
@@ -37,17 +43,40 @@ func (jwtConf *ConfigJWT) GenerateToken(userID string, roles string) string {
 	}
 
 	//create token with claims
-	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
 	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
-	whiteList = append(whiteList, token)
+	tokenList = append(tokenList, token)
 
-	return token
+	rt := jwt.New(jwt.SigningMethodHS256)
+	rtClaims := rt.Claims.(jwt.MapClaims)
+	rtClaims["id"] = userID
+	rtClaims["exp"] = time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration)) * 24).Unix()
+
+	refreshToken, _ := rt.SignedString([]byte(jwtConf.SecretJWT))
+	refreshTokenList = append(refreshTokenList, refreshToken)
+
+	response := TokenPair{}
+
+	response.AccessToken = token
+	response.RefreshToken = refreshToken
+
+	return response
 }
 
 func CheckToken(token string) bool {
-	for _, tkn := range whiteList {
+	for _, tkn := range tokenList {
 		if tkn == token {
 			return true
+		}
+	}
+
+	return false
+}
+
+func CheckRefreshToken(refreshToken string) bool {
+	for _, rt := range refreshTokenList {
+		if rt == refreshToken {
+			return true 
 		}
 	}
 
@@ -61,9 +90,9 @@ func GetPayload(token *jwt.Token) *JwtCustomClaims {
 }
 
 func Logout(token string) bool {
-	for i, tkn := range whiteList {
+	for i, tkn := range tokenList {
 		if tkn == token {
-			whiteList = append(whiteList[:i], whiteList[i+1:]...)
+			tokenList = append(tokenList[:i], tokenList[i+1:]...)
 		}
 	}
 

@@ -21,17 +21,35 @@ func (uu *UserUsecase) Register(userDomain *Domain) Domain {
 	return uu.userRepository.Register(userDomain)
 }
 
-func (uu *UserUsecase) Login(userDomain *LoginDomain) string {
+func (uu *UserUsecase) Login(userDomain *LoginDomain) map[string]string {
+	tokenPair := make(map[string]string)
+
 	user := uu.userRepository.GetByEmail(userDomain)
 
 	if user.ID == 0 {
-		return ""
+		return tokenPair
 	}
 
-	token := uu.jwtAuth.GenerateToken(strconv.Itoa(int(user.ID)), user.Roles)
+	token := uu.jwtAuth.GenerateTokenPair(strconv.Itoa(int(user.ID)), user.Roles)
+	tokenPair["access_token"] = token.AccessToken
+	tokenPair["refresh_token"] = token.RefreshToken
 
-	return token
+	return tokenPair
 }
+
+func (uu *UserUsecase) Token(userId string, roles string) map[string]string {
+	tokenPair := make(map[string]string)
+
+	token := uu.jwtAuth.GenerateTokenPair(userId, roles)
+	tokenPair["access_token"] = token.AccessToken
+	tokenPair["refresh_token"] = token.RefreshToken
+
+	return tokenPair
+}
+
+// func (uu *UserUsecase) Token(tokenInput string) middlewares.Response {
+// 	return 
+// }
 
 func (uu *UserUsecase) GetAll() []Domain {
 	return uu.userRepository.GetAll()
