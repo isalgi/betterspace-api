@@ -61,6 +61,18 @@ func (ur *userRepository) GetByEmail(userDomain *users.LoginDomain) users.Domain
 	return user.ToDomain()
 }
 
+func (ur *userRepository) GetByEmailOnly(email string) bool {
+	var user User
+
+	ur.conn.First(&user, "email = ?", email)
+
+	if user.ID != 0 {
+		return true
+	}
+
+	return false
+}
+
 func (ur *userRepository) GetAll() []users.Domain {
 	var rec []User
 
