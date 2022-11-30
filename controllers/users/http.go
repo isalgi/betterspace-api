@@ -94,9 +94,9 @@ func (ac *AuthController) Login(c echo.Context) error {
 }
 
 func (ac *AuthController) Token(c echo.Context) error {
-	user := c.Get("user").(*jwt.Token)
+	refreshTokenInput := c.Get("user").(*jwt.Token)
 
-	isListed := middlewares.CheckRefreshToken(user.Raw)
+	isListed := middlewares.CheckRefreshToken(refreshTokenInput.Raw)
 
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid refresh token")
@@ -110,15 +110,17 @@ func (ac *AuthController) Token(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
 	}
 
-	token := ac.authUsecase.Token(id, getUser.Roles)
+	newTokenPair := ac.authUsecase.Token(id, getUser.Roles)
 
-	if token["access_token"] == "" {
+	if newTokenPair["access_token"] == "" {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid email or password")
 	}
 
+	middlewares.Logout(refreshTokenInput.Raw)
+
 	return c.JSON(http.StatusOK, map[string]any{
-		"access_token": token["access_token"],
-		"refresh_token": token["refresh_token"],
+		"access_token": newTokenPair["access_token"],
+		"refresh_token": newTokenPair["refresh_token"],
 	})
 }
 
