@@ -96,5 +96,11 @@ func Logout(token string) bool {
 		}
 	}
 
+	for i, tkn := range refreshTokenList {
+		if tkn == token {
+			refreshTokenList = append(refreshTokenList[:i], refreshTokenList[i+1:]...)
+		}
+	}
+
 	return true
 }
