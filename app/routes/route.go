@@ -16,7 +16,9 @@ type ControllerList struct {
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	e.Use(cl.LoggerMiddleware)
 
-	// endpoint login, register, access refresh token
+	e.GET("/", cl.AuthController.HelloMessage)
+  
+  // endpoint login, register, access refresh token
 	e.POST("/api/v1/register", cl.AuthController.Register)
 	e.POST("/api/v1/login", cl.AuthController.Login)
 	e.POST("/api/v1/refresh", cl.AuthController.Token, middleware.JWTWithConfig(cl.JWTMiddleware))
