@@ -12,12 +12,12 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
-	FullName  string         `json:"full_name"`
-	Email     string         `json:"email" gorm:"unique" faker:"email"`
+	FullName  string         `json:"full_name" gorm:"type:varchar(100)"`
+	Email     string         `json:"email" gorm:"type:varchar(100);unique" faker:"email"`
 	Password  string         `json:"password" faker:"password"`
 	Gender    string         `json:"gender"`
-	Photo     string         `json:"photo"`
-	Roles     string         `json:"roles"`
+	Photo     string         `json:"photo" gorm:"type:varchar(100)"`
+	Roles     string         `gorm:"type:enum('user', 'admin')" json:"roles"`
 }
 
 func FromDomain(domain *users.Domain) *User {

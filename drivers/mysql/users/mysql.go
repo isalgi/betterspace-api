@@ -61,7 +61,7 @@ func (ur *userRepository) GetByEmail(userDomain *users.LoginDomain) users.Domain
 	return user.ToDomain()
 }
 
-func (ur *userRepository) GetByEmailOnly(email string) bool {
+func (ur *userRepository) CheckUserByEmailOnly(email string) bool {
 	var user User
 
 	ur.conn.First(&user, "email = ?", email)
@@ -76,7 +76,7 @@ func (ur *userRepository) GetByEmailOnly(email string) bool {
 func (ur *userRepository) GetAll() []users.Domain {
 	var rec []User
 
-	ur.conn.Find(&rec)
+	ur.conn.Where("roles = user").Find(&rec)
 
 	userDomain := []users.Domain{}
 
@@ -127,4 +127,12 @@ func (ur *userRepository) UpdateProfileData(id string, userDomain *users.Domain)
 	ur.conn.Where("id = ?", user.ID).Select("full_name","email", "gender").Updates(User{FullName: userDomain.FullName, Email: userDomain.Email, Gender: userDomain.Gender})
 
 	return updatedUser.ToDomain()
+}
+
+func (ur *userRepository) SearchByEmail(email string) users.Domain {
+	var rec User
+
+	ur.conn.First(&rec, "email = ?", email)
+
+	return rec.ToDomain()
 }
