@@ -5,9 +5,9 @@ name: Go
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "staging" ]
   pull_request:
-    branches: [ "featureUser", "featureOffice" ]
+    branches: [ "dev" ]
 
 jobs:
 
@@ -20,3 +20,11 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
+
+    - name: Build
+      run: go build -v ./...
+    - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      with:
+        heroku_api_key: ${{secrets.BACKEND_HEROKU_API_KEY}}
+        heroku_app_name: "api-better-space-staging" #Must be unique in Heroku
+        heroku_email: "api-better-space-staging"

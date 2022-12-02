@@ -1,19 +1,19 @@
 package helper
 
 import (
-	_util "backend/utils"
 	"context"
 	"fmt"
 	"mime/multipart"
+	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
 func CloudinaryUpload(ctx context.Context, source multipart.File, userId string) (string, error) {
-	cloudinaryCloud := _util.GetConfig("CLOUDINARY_CLOUD")
-	cloudinaryKey := _util.GetConfig("CLOUDINARY_KEY")
-	cloudinarySecret := _util.GetConfig("CLOUDINARY_SECRET")
+	cloudinaryCloud := os.Getenv("CLOUDINARY_CLOUD")
+	cloudinaryKey := os.Getenv("CLOUDINARY_KEY")
+	cloudinarySecret := os.Getenv("CLOUDINARY_SECRET")
 
 	cld, _ := cloudinary.NewFromParams(cloudinaryCloud, cloudinaryKey, cloudinarySecret)
 
