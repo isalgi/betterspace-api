@@ -14,11 +14,16 @@ type ControllerList struct {
 }
 
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+	
 	e.Use(cl.LoggerMiddleware)
 
 	e.GET("/", cl.AuthController.HelloMessage)
-  
-  // endpoint login, register, access refresh token
+
+	// endpoint login, register, access refresh token
 	e.POST("/api/v1/register", cl.AuthController.Register)
 	e.POST("/api/v1/login", cl.AuthController.Login)
 	e.POST("/api/v1/refresh", cl.AuthController.Token, middleware.JWTWithConfig(cl.JWTMiddleware))

@@ -3,8 +3,9 @@ package main
 import (
 	_middlewares "backend/app/middlewares"
 	_routes "backend/app/routes"
-	"fmt"
 	"os"
+
+	"fmt"
 
 	_driverFactory "backend/drivers"
 	_dbDriver "backend/drivers/mysql"
