@@ -359,6 +359,34 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 	return ctrl.NewResponse(c, http.StatusOK, "success", "profile updated", response.FromDomain(user))
 }
 
+func (ac *AuthController) SearchByEmail(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	// only admin allowed
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
+
+	var email string = c.QueryParam("email")
+
+	user := ac.authUsecase.SearchByEmail(email)
+
+	if user.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", fmt.Sprintf("user with email %s not found", email))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", fmt.Sprintf("user with email %s found", email), response.FromDomain(user))
+}
+
 func (ac *AuthController) Logout(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 
