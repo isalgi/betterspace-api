@@ -64,7 +64,7 @@ func (uu *UserUsecase) UpdateProfilePhoto(id string, userDomain *PhotoDomain) bo
 }
 
 func (uu *UserUsecase) UpdateProfileData(id string, userDomain *Domain) Domain {
-	isEmailExist := uu.userRepository.CheckUserByEmailOnly(userDomain.Email)
+	isEmailExist := uu.userRepository.CheckUserByEmailOnly(id, userDomain.Email)
 
 	if isEmailExist {
 		userDomain.ID = 0

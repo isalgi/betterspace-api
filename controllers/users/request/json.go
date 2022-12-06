@@ -9,7 +9,7 @@ import (
 type User struct {
 	FullName             string `json:"full_name" validate:"required"`
 	Gender               string `json:"gender" validate:"required,oneof=female male"`
-	Email                string `json:"email" validate:"required,email"`
+	Email                string `json:"email" validate:"required,email,lowercase"`
 	Password             string `json:"password" validate:"required"`
 	ConfirmationPassword string `json:"confirmation_password" validate:"required"`
 	Photo                string `json:"photo" form:"photo"`
@@ -17,7 +17,7 @@ type User struct {
 }
 
 type UserLogin struct {
-	Email    string `json:"email" validate:"required,email"`
+	Email    string `json:"email" validate:"required,email,lowercase"`
 	Password string `json:"password" validate:"required"`
 }
 

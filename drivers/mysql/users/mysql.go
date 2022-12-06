@@ -61,10 +61,10 @@ func (ur *userRepository) GetByEmail(userDomain *users.LoginDomain) users.Domain
 	return user.ToDomain()
 }
 
-func (ur *userRepository) CheckUserByEmailOnly(email string) bool {
+func (ur *userRepository) CheckUserByEmailOnly(id string, email string) bool {
 	var user User
 
-	ur.conn.First(&user, "email = ?", email)
+	ur.conn.Not("id = ? ", id).First(&user, "email = ?", email)
 
 	if user.ID != 0 {
 		return true
@@ -117,14 +117,17 @@ func (ur *userRepository) InsertURLtoUser(id string, userDomain *users.PhotoDoma
 }
 
 func (ur *userRepository) UpdateProfileData(id string, userDomain *users.Domain) users.Domain {
-	user := ur.GetByID(id)
+	var getUser users.Domain = ur.GetByID(id)
 
-	updatedUser := FromDomain(&user)
+	updatedUser := FromDomain(&getUser)
 	updatedUser.FullName = userDomain.FullName
 	updatedUser.Email = userDomain.Email
 	updatedUser.Gender = userDomain.Gender
+	updatedUser.Password = getUser.Password
+	updatedUser.Photo = getUser.Photo
+	updatedUser.Roles = getUser.Roles
 
-	ur.conn.Where("id = ?", user.ID).Select("full_name","email", "gender").Updates(User{FullName: userDomain.FullName, Email: userDomain.Email, Gender: userDomain.Gender})
+	ur.conn.Save(&updatedUser)
 
 	return updatedUser.ToDomain()
 }

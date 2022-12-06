@@ -24,7 +24,7 @@ func CloudinaryUpload(ctx context.Context, source multipart.File, userId string)
 		uploader.UploadParams{
 			PublicID: fmt.Sprintf("user-%s", userId),
 			Format:   "jpg",
-			Folder:   "office-booking-profile-photo-user",
+			Folder:   "better-space/testing/photo",
 		},
 	)
 

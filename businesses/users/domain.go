@@ -43,7 +43,7 @@ type Usecase interface {
 type Repository interface {
 	Register(userDomain *Domain) Domain
 	GetByEmail(userDomain *LoginDomain) Domain
-	CheckUserByEmailOnly(email string) bool
+	CheckUserByEmailOnly(id string, email string) bool
 	GetAll() []Domain
 	GetByID(id string) Domain
 	Delete(id string) bool
