@@ -5,9 +5,11 @@ name: Go
 
 on:
   push:
-    branches: [ "staging" ]
+    branches: 
+      - staging
   pull_request:
-    branches: [ "dev" ]
+    branches: 
+      - devStaging
 
 jobs:
 
