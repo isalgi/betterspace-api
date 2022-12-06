@@ -216,8 +216,6 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	var url string
 	var err error
 
-	ctx := context.Background()
-
 	isListed := middlewares.CheckToken(token.Raw)
 
 	if !isListed {
@@ -265,6 +263,8 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	}
 
 	defer src.Close()
+  
+	ctx := context.Background()
 
 	if role == "user" {
 		url, err = helper.CloudinaryUpload(ctx, src, userId)
