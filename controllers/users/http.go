@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"mime/multipart"
 
 	"backend/businesses/users"
 
@@ -15,9 +16,9 @@ import (
 
 	"net/http"
 
-	passwordvalidator "github.com/wagslane/go-password-validator"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	passwordvalidator "github.com/wagslane/go-password-validator"
 )
 
 type AuthController struct {
@@ -215,6 +216,7 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	var isSuccess bool
 	var url string
 	var err error
+	var fileInput *multipart.FileHeader
 
 	isListed := middlewares.CheckToken(token.Raw)
 
@@ -230,24 +232,24 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 
 	if getUser.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
+	} else {
+		fileInput, err = c.FormFile("photo")
+
+		// validating input
+		switch err {
+			case nil:
+				// do nothing
+			case http.ErrMissingFile:
+				return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "no file attached")
+			default:
+				return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
+		}
 	}
 
 	input := request.UserPhoto{}
 
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
-	}
-
-	fileInput, err := c.FormFile("photo")
-
-	// validating input
-	switch err {
-		case nil:
-			// do nothing
-		case http.ErrMissingFile:
-			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "no file attached")
-		default:
-			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
 	}
 
 	isFileAllowed, isFileAllowedMessage := helper.IsFileAllowed(fileInput)
