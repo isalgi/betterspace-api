@@ -34,6 +34,7 @@ type Usecase interface {
 	Token(userId string, roles string) map[string]string
 	GetAll() []Domain
 	GetByID(id string) Domain
+	GetProfile(id string) Domain
 	Delete(id string) bool
 	UpdateProfileData(id string, userDomain *Domain) Domain
 	UpdateProfilePhoto(id string, userDomain *PhotoDomain) bool

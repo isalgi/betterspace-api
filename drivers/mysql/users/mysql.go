@@ -76,7 +76,7 @@ func (ur *userRepository) CheckUserByEmailOnly(id string, email string) bool {
 func (ur *userRepository) GetAll() []users.Domain {
 	var rec []User
 
-	ur.conn.Where("roles = ?", "user").Find(&rec)
+	ur.conn.Find(&rec)
 
 	userDomain := []users.Domain{}
 

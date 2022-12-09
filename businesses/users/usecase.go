@@ -55,6 +55,10 @@ func (uu *UserUsecase) GetByID(id string) Domain {
 	return uu.userRepository.GetByID(id)
 }
 
+func (uu *UserUsecase) GetProfile(id string) Domain {
+	return uu.userRepository.GetByID(id)
+}
+
 func (uu *UserUsecase) Delete(id string) bool {
 	return uu.userRepository.Delete(id)
 }

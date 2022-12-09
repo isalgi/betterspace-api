@@ -154,9 +154,6 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 func (ac *AuthController) GetByID(c echo.Context) error {
 	var user users.Domain
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
-	role := payload.Roles
-	userId := payload.ID
 	paramsId := c.Param("id")
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -164,12 +161,29 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
+	
+	user = ac.authUsecase.GetByID(paramsId)
 
-	if role == "admin" {
-		user = ac.authUsecase.GetByID(paramsId)
-	} else {
-		user = ac.authUsecase.GetByID(userId)
+	if user.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
 	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "user found", response.FromDomain(user))
+}
+
+func (ac *AuthController) GetProfile(c echo.Context) error {
+	var user users.Domain
+	token := c.Get("user").(*jwt.Token)
+	payload := helper.GetPayloadInfo(c)
+	userId := payload.ID
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	user = ac.authUsecase.GetByID(userId)
 
 	if user.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "user not found")
