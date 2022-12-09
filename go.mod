@@ -6,6 +6,7 @@ require (
 	github.com/go-faker/faker/v4 v4.0.0-beta.3
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/gosimple/slug v1.13.1
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/spf13/viper v1.14.0
 	github.com/wagslane/go-password-validator v0.3.0
@@ -18,6 +19,7 @@ require (
 	github.com/creasty/defaults v1.5.1 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/schema v1.2.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 )
 
 require (
@@ -46,7 +48,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/text v0.4.0
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

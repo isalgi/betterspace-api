@@ -3,8 +3,8 @@ package main
 import (
 	_middlewares "backend/app/middlewares"
 	_routes "backend/app/routes"
-	"os"
 
+	"os"
 	"fmt"
 
 	_driverFactory "backend/drivers"
@@ -12,6 +12,21 @@ import (
 
 	_userUseCase "backend/businesses/users"
 	_userController "backend/controllers/users"
+
+	_officeUseCase "backend/businesses/offices"
+	_officeController "backend/controllers/offices"
+
+	_officeImageUseCase "backend/businesses/office_images"
+	_officeImageController "backend/controllers/office_images"
+
+	_facilityUseCase "backend/businesses/facilities"
+	_facilityController "backend/controllers/facilities"
+
+	_officeFacilityUseCase "backend/businesses/office_facilities"
+	_officeFacilityController "backend/controllers/office_facilities"
+
+	_transactionUseCase "backend/businesses/transactions"
+	_transactionController "backend/controllers/transactions"
 
 	"github.com/labstack/echo/v4"
 )
@@ -46,10 +61,35 @@ func main() {
 	userUseCase := _userUseCase.NewUserUsecase(userRepo, &configJWT)
 	userCtrl := _userController.NewAuthController(userUseCase)
 
+	officeRepo := _driverFactory.NewOfficeRepository(db)
+	officeUseCase := _officeUseCase.NewOfficeUsecase(officeRepo)
+	officeCtrl := _officeController.NewOfficeController(officeUseCase)
+
+	officeImageRepo := _driverFactory.NewOfficeImageRepository(db)
+	officeImageUseCase := _officeImageUseCase.NewOfficeImageUsecase(officeImageRepo)
+	officeImageCtrl := _officeImageController.NewOfficeImageController(officeImageUseCase)
+
+	facilityRepo := _driverFactory.NewFacilityRepository(db)
+	facilityUseCase := _facilityUseCase.NewFacilityUsecase(facilityRepo)
+	facilityCtrl := _facilityController.NewFacilityController(facilityUseCase)
+
+	officeFacilityRepo := _driverFactory.NewOfficeFacilityRepository(db)
+	officeFacilityUseCase := _officeFacilityUseCase.NewOfficeFacilityUsecase(officeFacilityRepo)
+	officeFacilityCtrl := _officeFacilityController.NewOfficeFacilityController(officeFacilityUseCase)
+
+	TransactionRepo := _driverFactory.NewTransactionRepository(db)
+	TransactionUseCase := _transactionUseCase.NewTransactionUsecase(TransactionRepo)
+	TransactionCtrl := _transactionController.NewTransactionController(TransactionUseCase)
+
 	routesInit := _routes.ControllerList{
-		LoggerMiddleware: configLogger.Init(),
-		JWTMiddleware: configJWT.Init(),
-		AuthController: *userCtrl,
+		LoggerMiddleware:         configLogger.Init(),
+		JWTMiddleware:            configJWT.Init(),
+		AuthController:           *userCtrl,
+		OfficeController:         *officeCtrl,
+		OfficeImageController:    *officeImageCtrl,
+		FacilityController:       *facilityCtrl,
+		OfficeFacilityController: *officeFacilityCtrl,
+		TransactionController:    *TransactionCtrl,
 	}
 
 	routesInit.RouteRegister(app)
