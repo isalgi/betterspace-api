@@ -28,6 +28,9 @@ func (fu *FacilityUsecase) Create(facilityDomain *Domain) Domain {
 }
 
 func (fu *FacilityUsecase) Update(id string, facilityDomain *Domain) Domain {
+	slug := slug.Make(facilityDomain.Description)
+	facilityDomain.Slug = slug
+	
 	return fu.facilityRepository.Update(id, facilityDomain)
 }
 

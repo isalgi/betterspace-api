@@ -1,7 +1,9 @@
 package facilities
 
 import (
+	"backend/app/middlewares"
 	"backend/businesses/facilities"
+	"backend/helper"
 
 	ctrl "backend/controllers"
 	"backend/controllers/facilities/request"
@@ -9,6 +11,7 @@ import (
 
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,6 +50,20 @@ func (oc *FacilityController) GetByID(c echo.Context) error {
 }
 
 func (oc *FacilityController) Create(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
 	inputTemp := request.Facility{}
 
 	if err := c.Bind(&inputTemp); err != nil {
@@ -69,6 +86,20 @@ func (oc *FacilityController) Create(c echo.Context) error {
 }
 
 func (oc *FacilityController) Update(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
 	input := request.Facility{}
 
 	if err := c.Bind(&input); err != nil {
@@ -93,6 +124,20 @@ func (oc *FacilityController) Update(c echo.Context) error {
 }
 
 func (oc *FacilityController) Delete(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
 	var facilityId string = c.Param("id")
 
 	isSuccess := oc.facilityUsecase.Delete(facilityId)

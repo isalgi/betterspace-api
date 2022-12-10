@@ -3,8 +3,8 @@ package main
 import (
 	_middlewares "backend/app/middlewares"
 	_routes "backend/app/routes"
+	_utils "backend/utils"
 
-	"os"
 	"fmt"
 
 	_driverFactory "backend/drivers"
@@ -35,11 +35,11 @@ const DEFAULT_PORT = "3000"
 
 func main() {
 	configDB := _dbDriver.ConfigDB{
-		DB_USERNAME: os.Getenv("DB_USERNAME"),
-		DB_PASSWORD: os.Getenv("DB_PASSWORD"),
-		DB_HOST: os.Getenv("DB_HOST"),
-		DB_PORT: os.Getenv("DB_PORT"),
-		DB_NAME: os.Getenv("DB_NAME"),
+		DB_USERNAME: _utils.GetConfig("DB_USERNAME"),
+		DB_PASSWORD: _utils.GetConfig("DB_PASSWORD"),
+		DB_HOST: _utils.GetConfig("DB_HOST"),
+		DB_PORT: _utils.GetConfig("DB_PORT"),
+		DB_NAME: _utils.GetConfig("DB_NAME"),
 	}
 
 	db := configDB.InitDB()
@@ -47,7 +47,7 @@ func main() {
 	_dbDriver.DBMigrate(db)
 
 	configJWT := _middlewares.ConfigJWT{
-		SecretJWT: os.Getenv("JWT_SECRET_KEY"),
+		SecretJWT: _utils.GetConfig("JWT_SECRET_KEY"),
 		ExpiresDuration: 1,
 	}
 
@@ -94,7 +94,7 @@ func main() {
 
 	routesInit.RouteRegister(app)
 
-	var port string = os.Getenv("PORT")
+	var port string = _utils.GetConfig("PORT")
 
 	if port == "" {
 		port = DEFAULT_PORT

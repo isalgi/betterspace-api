@@ -41,7 +41,7 @@ func FromDomain(domain offices.Domain) Office {
 		ID:             domain.ID,
 		Title:          domain.Title,
 		Description:    domain.Description,
-		OfficeType:     domain.OfficeType,
+		OfficeType:     cases.Title(language.English).String(domain.OfficeType),
 		OfficeLength:   domain.OfficeLength,
 		Price:          domain.Price,
 		OpenHour:       domain.OpenHour.Format("15:04"),

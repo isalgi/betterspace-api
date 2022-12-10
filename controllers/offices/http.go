@@ -1,6 +1,7 @@
 package offices
 
 import (
+	"backend/app/middlewares"
 	"backend/businesses/offices"
 	"backend/helper"
 	"backend/utils"
@@ -13,6 +14,7 @@ import (
 
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,6 +29,14 @@ func NewOfficeController(officeUC offices.Usecase) *OfficeController {
 }
 
 func (oc *OfficeController) GetAll(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	officesData := oc.officeUsecase.GetAll()
 
 	offices := []response.Office{}
@@ -39,7 +49,15 @@ func (oc *OfficeController) GetAll(c echo.Context) error {
 }
 
 func (oc *OfficeController) GetByID(c echo.Context) error {
-	var id string = c.Param("id")
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	var id string = c.Param("office_id")
 
 	office := oc.officeUsecase.GetByID(id)
 
@@ -51,6 +69,21 @@ func (oc *OfficeController) GetByID(c echo.Context) error {
 }
 
 func (oc *OfficeController) Create(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
+
 	var imageURLs []string
 
 	input := request.Office{}
@@ -129,6 +162,21 @@ func (oc *OfficeController) Create(c echo.Context) error {
 }
 
 func (oc *OfficeController) Update(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
+	
 	var officeId string = c.Param("office_id")
 	var imageURLs []string
 
@@ -217,6 +265,21 @@ func (oc *OfficeController) Update(c echo.Context) error {
 }
 
 func (oc *OfficeController) Delete(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+	
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
+	
 	var officeId string = c.Param("office_id")
 
 	fmt.Println(officeId)
@@ -231,6 +294,14 @@ func (oc *OfficeController) Delete(c echo.Context) error {
 }
 
 func (oc *OfficeController) SearchByCity(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	var city string = c.Param("city")
 
 	offices := []response.Office{}
@@ -249,6 +320,14 @@ func (oc *OfficeController) SearchByCity(c echo.Context) error {
 }
 
 func (oc *OfficeController) SearchByRate(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	var rate string = c.Param("rate")
 
 	offices := []response.Office{}
@@ -267,6 +346,14 @@ func (oc *OfficeController) SearchByRate(c echo.Context) error {
 }
 
 func (oc *OfficeController) SearchByTitle(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	var title string = c.QueryParam("search")
 
 	offices := []response.Office{}
@@ -285,6 +372,14 @@ func (oc *OfficeController) SearchByTitle(c echo.Context) error {
 }
 
 func (oc *OfficeController) GetOffices(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	officesData := oc.officeUsecase.GetOffices()
 
 	offices := []response.Office{}
@@ -297,6 +392,14 @@ func (oc *OfficeController) GetOffices(c echo.Context) error {
 }
 
 func (oc *OfficeController) GetCoworkingSpace(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	coworkingSpaceData := oc.officeUsecase.GetCoworkingSpace()
 
 	coworkingSpaces := []response.Office{}
@@ -309,6 +412,14 @@ func (oc *OfficeController) GetCoworkingSpace(c echo.Context) error {
 }
 
 func (oc *OfficeController) GetMeetingRooms(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	meetingRoomsData := oc.officeUsecase.GetMeetingRooms()
 
 	meetingRooms := []response.Office{}
@@ -321,6 +432,14 @@ func (oc *OfficeController) GetMeetingRooms(c echo.Context) error {
 }
 
 func (oc *OfficeController) GetRecommendation(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	recommendationsData := oc.officeUsecase.GetRecommendation()
 
 	recommendations := []response.Office{}
@@ -329,10 +448,18 @@ func (oc *OfficeController) GetRecommendation(c echo.Context) error {
 		recommendations = append(recommendations, response.FromDomain(recommendation))
 	}
 
-	return ctrl.NewResponse(c, http.StatusOK, "success", "all offices type : meeting rooms", recommendations)
+	return ctrl.NewResponse(c, http.StatusOK, "success", "recommendation offices", recommendations)
 }
 
 func (oc *OfficeController) GetNearest(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	var err error
 	var lat string = c.QueryParam("lat")
 	var lng string = c.QueryParam("long")

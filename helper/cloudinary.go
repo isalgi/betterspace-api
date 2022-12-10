@@ -6,17 +6,18 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
-	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
-func CloudinaryUpload(ctx context.Context, source multipart.File, userId string) (string, error) {
-	cloudinaryCloud := os.Getenv("CLOUDINARY_CLOUD")
-	cloudinaryKey := os.Getenv("CLOUDINARY_KEY")
-	cloudinarySecret := os.Getenv("CLOUDINARY_SECRET")
+var (
+	cloudinaryCloud string = _utils.GetConfig("CLOUDINARY_CLOUD")
+	cloudinaryKey string = _utils.GetConfig("CLOUDINARY_KEY")
+	cloudinarySecret string = _utils.GetConfig("CLOUDINARY_SECRET")
+)
 
+func CloudinaryUpload(ctx context.Context, source multipart.File, userId string) (string, error) {
 	cld, _ := cloudinary.NewFromParams(cloudinaryCloud, cloudinaryKey, cloudinarySecret)
 
 	// Upload image and set the PublicID to userId.
@@ -26,7 +27,7 @@ func CloudinaryUpload(ctx context.Context, source multipart.File, userId string)
 		uploader.UploadParams{
 			PublicID: fmt.Sprintf("user-%s", userId),
 			Format:   "jpg",
-			Folder:   "better-space/staging/photo",
+			Folder:   "better-space/testing/photo",
 		},
 	)
 
@@ -37,9 +38,6 @@ func CloudinaryUpload(ctx context.Context, source multipart.File, userId string)
 
 func CloudinaryUploadOfficeImgs(files []*multipart.FileHeader) ([]string, error) {
 	ctx := context.Background()
-	cloudinaryCloud := os.Getenv("CLOUDINARY_CLOUD")
-	cloudinaryKey := os.Getenv("CLOUDINARY_KEY")
-	cloudinarySecret := os.Getenv("CLOUDINARY_SECRET")
 
 	cld, _ := cloudinary.NewFromParams(cloudinaryCloud, cloudinaryKey, cloudinarySecret)
 	
@@ -63,7 +61,7 @@ func CloudinaryUploadOfficeImgs(files []*multipart.FileHeader) ([]string, error)
 			uploader.UploadParams{
 				PublicID: fileName,
 				Format:   "jpg",
-				Folder:   "better-space/office-images-test",
+				Folder:   "better-space/testing/office-images-test",
 			},
 		)
 
