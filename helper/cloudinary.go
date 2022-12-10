@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
+	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
 var (
-	cloudinaryCloud string = _utils.GetConfig("CLOUDINARY_CLOUD")
-	cloudinaryKey string = _utils.GetConfig("CLOUDINARY_KEY")
-	cloudinarySecret string = _utils.GetConfig("CLOUDINARY_SECRET")
+	cloudinaryCloud string = os.Getenv("CLOUDINARY_CLOUD")
+	cloudinaryKey string = os.Getenv("CLOUDINARY_KEY")
+	cloudinarySecret string = os.Getenv("CLOUDINARY_SECRET")
 )
 
 func CloudinaryUpload(ctx context.Context, source multipart.File, userId string) (string, error) {
