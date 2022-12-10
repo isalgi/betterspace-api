@@ -6,7 +6,7 @@ name: Go
 on:
   push:
     branches: 
-      - mergeUserStagingAndOfficeFeature
+      - staging-2
 
 jobs:
 
