@@ -12,6 +12,10 @@ type Domain struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 	Price     uint
+	Duration  int
+	CheckIn   time.Time
+	CheckOut  time.Time
+	Drink     string
 	UserID    uint
 	OfficeID  uint
 }

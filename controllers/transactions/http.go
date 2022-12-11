@@ -5,6 +5,8 @@ import (
 	ctrl "backend/controllers"
 	"backend/controllers/transactions/request"
 	"backend/controllers/transactions/response"
+	"backend/utils"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -39,6 +41,21 @@ func (t *TransactionController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
 
+	checkInDTO := request.CheckInDTO{}
+
+	if err := c.Bind(&checkInDTO); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind time failed")
+	}
+
+	// input hour validation
+	if err := checkInDTO.Validate(); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
+	}
+
+	checkInHour := utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
+	
+	input.CheckIn = checkInHour
+
 	err := input.Validate()
 
 	if err != nil {
@@ -48,7 +65,7 @@ func (t *TransactionController) Create(c echo.Context) error {
 	trans := t.TransactionUsecase.Create(input.ToDomain())
 
 	if trans.ID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "transaction failed")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "create transaction failed")
 	}
 
 	return ctrl.NewResponse(c, http.StatusCreated, "success", "transaction created", response.FromDomain(trans))

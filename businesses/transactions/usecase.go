@@ -1,5 +1,9 @@
 package transactions
 
+import (
+	"time"
+)
+
 type transactionUsecase struct {
 	transactionRepository Repository
 }
@@ -15,6 +19,34 @@ func (tu *transactionUsecase) GetAll() []Domain {
 }
 
 func (tu *transactionUsecase) Create(transactionDomain *Domain) Domain {
+	hour, min, sec := transactionDomain.CheckIn.Clock()
+	year, month, day := transactionDomain.CheckIn.Date()
+
+	loc, err := time.LoadLocation("Asia/Jakarta")
+
+	if err != nil {
+		transactionDomain.ID = 0
+		return *transactionDomain
+	}
+
+	if transactionDomain.Duration > 13 {
+		transactionDomain.ID = 0
+		return *transactionDomain
+	}
+
+	duration := transactionDomain.Duration
+	hour += hour + duration
+
+	if hour > 24 {
+		hour %= 24
+	}
+
+	transactionDomain.CheckOut = time.Date(year, month, day, hour, min, sec, 0, loc)
+
+	if transactionDomain.CheckIn.After(transactionDomain.CheckOut) {
+		transactionDomain.CheckOut = transactionDomain.CheckOut.AddDate(0, 0, 1)
+	}
+
 	return tu.transactionRepository.Create(transactionDomain)
 }
 
