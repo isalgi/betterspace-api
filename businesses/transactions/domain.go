@@ -1,10 +1,19 @@
 package transactions
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type Domain struct {
-	ID       uint
-	Price    uint
-	UserID   uint
-	OfficeID uint
+	ID        uint
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
+	Price     uint
+	UserID    uint
+	OfficeID  uint
 }
 
 type Usecase interface {
