@@ -1,12 +1,18 @@
 package transactions
 
 import (
+	"backend/app/middlewares"
 	transactions "backend/businesses/transactions"
 	ctrl "backend/controllers"
 	"backend/controllers/transactions/request"
 	"backend/controllers/transactions/response"
+	"backend/helper"
+	"backend/utils"
+	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,6 +27,14 @@ func NewTransactionController(tc transactions.Usecase) *TransactionController {
 }
 
 func (t *TransactionController) GetAll(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	TransactionsData := t.TransactionUsecase.GetAll()
 
 	Transactions := []response.Transaction{}
@@ -32,12 +46,112 @@ func (t *TransactionController) GetAll(c echo.Context) error {
 	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions", Transactions)
 }
 
+func (t *TransactionController) GetByUserID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	payload := helper.GetPayloadInfo(c)
+	userId := payload.ID
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByUserID(userId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+}
+
+func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	var userId string = c.Param("user_id")
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access this info")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByUserID(userId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+}
+
+func (t *TransactionController) GetByOfficeID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	var officeId string = c.Param("office_id")
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access this info")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByOfficeID(officeId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by office ID : " + officeId, Transactions)
+}
+
+
 func (t *TransactionController) Create(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	input := request.Transaction{}
 
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
+
+	checkInDTO := request.CheckInDTO{}
+
+	if err := c.Bind(&checkInDTO); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind time failed")
+	}
+
+	// input hour validation
+	if err := checkInDTO.Validate(); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
+	}
+
+	checkInHour := utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
+
+	input.CheckIn = checkInHour
 
 	err := input.Validate()
 
@@ -48,13 +162,24 @@ func (t *TransactionController) Create(c echo.Context) error {
 	trans := t.TransactionUsecase.Create(input.ToDomain())
 
 	if trans.ID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "transaction failed")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "create transaction failed")
 	}
 
 	return ctrl.NewResponse(c, http.StatusCreated, "success", "transaction created", response.FromDomain(trans))
 }
 
 func (t *TransactionController) GetByID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	payload := helper.GetPayloadInfo(c)
+	userId := payload.ID
+	role := payload.Roles
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
 	var id string = c.Param("id")
 
 	transaction := t.TransactionUsecase.GetByID(id)
@@ -63,17 +188,46 @@ func (t *TransactionController) GetByID(c echo.Context) error {
 		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "transaction not found", "")
 	}
 
+	if role == "user" {
+		if strconv.Itoa(int(transaction.UserID)) != userId {
+			return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access other user transaction")
+		}
+	}
+
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction found", response.FromDomain(transaction))
 }
 
 func (t *TransactionController) Update(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	var transactionId string = c.Param("id")
+
 	input := request.Transaction{}
 
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "validation failed", "")
 	}
 
-	var transactionId string = c.Param("id")
+	checkInDTO := request.CheckInDTO{}
+
+	if err := c.Bind(&checkInDTO); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind time failed")
+	}
+
+	// input hour validation
+	if err := checkInDTO.Validate(); err != nil {
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
+	}
+
+	checkInHour := utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
+
+	input.CheckIn = checkInHour
 
 	err := input.Validate()
 
@@ -87,10 +241,29 @@ func (t *TransactionController) Update(c echo.Context) error {
 		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "transaction not found", "")
 	}
 
+	if transaction.UserID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "update failed, user or office not found")
+	}
+
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction updated", response.FromDomain(transaction))
 }
 
 func (t *TransactionController) Delete(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed to access this info")
+	}
+
 	var transactionId string = c.Param("id")
 
 	isSuccess := t.TransactionUsecase.Delete(transactionId)
