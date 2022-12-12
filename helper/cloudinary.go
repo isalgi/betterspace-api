@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
+	"os"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
 var (
-	cloudinaryCloud string = _utils.GetConfig("CLOUDINARY_CLOUD")
-	cloudinaryKey string = _utils.GetConfig("CLOUDINARY_KEY")
-	cloudinarySecret string = _utils.GetConfig("CLOUDINARY_SECRET")
+	cloudinaryCloud string = os.Getenv("CLOUDINARY_CLOUD")
+	cloudinaryKey string = os.Getenv("CLOUDINARY_KEY")
+	cloudinarySecret string = os.Getenv("CLOUDINARY_SECRET")
 )
 
 func CloudinaryUpload(ctx context.Context, source multipart.File, userId string) (string, error) {
@@ -27,7 +28,7 @@ func CloudinaryUpload(ctx context.Context, source multipart.File, userId string)
 		uploader.UploadParams{
 			PublicID: fmt.Sprintf("user-%s", userId),
 			Format:   "jpg",
-			Folder:   "better-space/testing/photo",
+			Folder:   "better-space/staging/photo",
 		},
 	)
 
@@ -61,7 +62,7 @@ func CloudinaryUploadOfficeImgs(files []*multipart.FileHeader) ([]string, error)
 			uploader.UploadParams{
 				PublicID: fileName,
 				Format:   "jpg",
-				Folder:   "better-space/testing/office-images-test",
+				Folder:   "better-space/staging/office-image",
 			},
 		)
 

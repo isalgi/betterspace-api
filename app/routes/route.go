@@ -88,7 +88,7 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 
 	// endpoint user : profile access
 	profile := v1.Group("/profile")
-	profile.GET("", cl.AuthController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-user-by-id"
+	profile.GET("", cl.AuthController.GetProfile, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-user-by-id"
 	profile.DELETE("", cl.AuthController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "delete-user-account"
 	profile.PUT("/photo", cl.AuthController.UpdateProfilePhoto, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-user-profile-photo"
 	profile.PUT("", cl.AuthController.UpdateProfileData, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-user-profile-data"

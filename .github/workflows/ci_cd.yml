@@ -6,7 +6,7 @@ name: Go
 on:
   push:
     branches: 
-      - merge/user-office
+      - staging-2
 
 jobs:
 

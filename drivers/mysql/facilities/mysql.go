@@ -54,6 +54,7 @@ func (fr *facilityRepository) Update(id string, facilityDomain *facilities.Domai
 	updatedFacility := FromDomain(&facility)
 
 	updatedFacility.Description = facilityDomain.Description
+	updatedFacility.Slug = facilityDomain.Slug
 
 	fr.conn.Save(&updatedFacility)
 
