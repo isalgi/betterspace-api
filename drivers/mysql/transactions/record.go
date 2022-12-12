@@ -1,7 +1,7 @@
 package transactions
 
 import (
-	TransactionUseCase "backend/businesses/transactions"
+	transactionUseCase "backend/businesses/transactions"
 	"backend/drivers/mysql/offices"
 	"backend/drivers/mysql/users"
 	"time"
@@ -27,7 +27,7 @@ type Transaction struct {
 	Office        offices.Office `json:"office" gorm:"foreignKey:OfficeID;references:ID"`
 }
 
-func FromDomain(domain *TransactionUseCase.Domain) *Transaction {
+func FromDomain(domain *transactionUseCase.Domain) *Transaction {
 	return &Transaction{
 		ID:            domain.ID,
 		Price:         domain.Price,
@@ -45,8 +45,8 @@ func FromDomain(domain *TransactionUseCase.Domain) *Transaction {
 	}
 }
 
-func (rec *Transaction) ToDomain() TransactionUseCase.Domain {
-	return TransactionUseCase.Domain{
+func (rec *Transaction) ToDomain() transactionUseCase.Domain {
+	return transactionUseCase.Domain{
 		ID:            rec.ID,
 		Price:         rec.Price,
 		CheckIn:       rec.CheckIn,
@@ -55,7 +55,10 @@ func (rec *Transaction) ToDomain() TransactionUseCase.Domain {
 		PaymentMethod: rec.PaymentMethod,
 		Status:        rec.Status,
 		Drink:         rec.Drink,
-		UserID:        rec.UserID,
+		UserFullName:  rec.User.FullName,
+		UserEmail:     rec.User.Email,
+		UserID:        rec.User.ID,
+		OfficeName:    rec.Office.Title,
 		OfficeID:      rec.OfficeID,
 		CreatedAt:     rec.CreatedAt,
 		UpdatedAt:     rec.UpdatedAt,

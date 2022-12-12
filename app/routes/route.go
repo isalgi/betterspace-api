@@ -110,8 +110,9 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 
 	// endpoint user : transactions access
 	transactions := v1.Group("/transactions")
+	transactions.GET("", cl.TransactionController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name= "get-user-transactions"
+	
 	transactionsDetails := transactions.Group("/details")
-	transactionsDetails.GET("", cl.TransactionController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name= "get-user-transactions"
 	transactionsDetails.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-transaction-by-id"
 	transactionsDetails.POST("", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-transaction"
 	transactionsDetails.PUT("/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-transaction"

@@ -19,7 +19,10 @@ type Transaction struct {
 	Status        string         `json:"status"`
 	PaymentMethod string         `json:"payment_method"`
 	UserID        uint           `json:"user_id"`
+	UserFullName  string         `json:"user_full_name"`
+	UserEmail     string         `json:"user_email"`
 	OfficeID      uint           `json:"office_id"`
+	OfficeName    string         `json:"office_name"`
 }
 
 func FromDomain(domain transactions.Domain) Transaction {
@@ -35,6 +38,9 @@ func FromDomain(domain transactions.Domain) Transaction {
 		Drink:         domain.Drink,
 		Status:        domain.Status,
 		PaymentMethod: domain.PaymentMethod,
+		UserFullName:  domain.UserFullName,
+		UserEmail:     domain.UserEmail,
+		OfficeName:    domain.OfficeName,
 		UserID:        domain.UserID,
 		OfficeID:      domain.OfficeID,
 	}

@@ -2,7 +2,6 @@ package transactions
 
 import (
 	transactions "backend/businesses/transactions"
-	// officeRecord "backend/drivers/mysql/offices"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -21,7 +20,7 @@ func NewMySQLRepository(conn *gorm.DB) transactions.Repository {
 func (t *TransactionRepository) GetAll() []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Find(&rec)
+	t.conn.Preload("User").Preload("Office").Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -35,7 +34,7 @@ func (t *TransactionRepository) GetAll() []transactions.Domain {
 func (t *TransactionRepository) GetByUserID(userId string) []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Where("user_id = ?", userId).Find(&rec)
+	t.conn.Preload("User").Preload("Office").Where("user_id = ?", userId).Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -49,7 +48,7 @@ func (t *TransactionRepository) GetByUserID(userId string) []transactions.Domain
 func (t *TransactionRepository) GetByOfficeID(officeId string) []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Where("office_id = ?", officeId).Find(&rec)
+	t.conn.Preload("User").Preload("Office").Where("office_id = ?", officeId).Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -62,8 +61,8 @@ func (t *TransactionRepository) GetByOfficeID(officeId string) []transactions.Do
 
 func (t *TransactionRepository) Create(TransactionDomain *transactions.Domain) transactions.Domain {
 	rec := FromDomain(TransactionDomain)
-
-	result := t.conn.Create(&rec)
+	
+	result := t.conn.Preload("User").Preload("Office").Create(&rec)
 
 	result.Last(&rec)
 
@@ -73,7 +72,7 @@ func (t *TransactionRepository) Create(TransactionDomain *transactions.Domain) t
 func (t *TransactionRepository) GetByID(id string) transactions.Domain {
 	var transaction Transaction
 
-	t.conn.First(&transaction, "id = ?", id)
+	t.conn.Preload("User").Preload("Office").First(&transaction, "id = ?", id)
 
 	return transaction.ToDomain()
 }
@@ -99,7 +98,7 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 	updatedTransaction.UserID = transactionDomain.UserID
 	updatedTransaction.OfficeID = transactionDomain.OfficeID
 
-	result := t.conn.Where("id = ?", transaction.ID).
+	result := t.conn.Preload("User").Preload("Office").Where("id = ?", transaction.ID).
 		Select("price", "check_in", "check_out", "duration", "payment_method", "status", "drink", "user_id", "office_id").
 		Updates(Transaction{
 			Price:         updatedTransaction.Price,

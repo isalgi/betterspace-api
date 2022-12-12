@@ -65,7 +65,7 @@ func (t *TransactionController) GetByUserID(c echo.Context) error {
 		Transactions = append(Transactions, response.FromDomain(trans))
 	}
 
-	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : "+userId, Transactions)
 }
 
 func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
@@ -92,7 +92,7 @@ func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
 		Transactions = append(Transactions, response.FromDomain(trans))
 	}
 
-	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : "+userId, Transactions)
 }
 
 func (t *TransactionController) GetByOfficeID(c echo.Context) error {
@@ -119,9 +119,8 @@ func (t *TransactionController) GetByOfficeID(c echo.Context) error {
 		Transactions = append(Transactions, response.FromDomain(trans))
 	}
 
-	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by office ID : " + officeId, Transactions)
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by office ID : "+officeId, Transactions)
 }
-
 
 func (t *TransactionController) Create(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
@@ -153,6 +152,14 @@ func (t *TransactionController) Create(c echo.Context) error {
 
 	input.CheckIn = checkInHour
 
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role == "user" {
+		intUserID, _ := strconv.Atoi(payload.ID)
+		input.UserID = uint(intUserID)
+	}
+
 	err := input.Validate()
 
 	if err != nil {
@@ -162,7 +169,7 @@ func (t *TransactionController) Create(c echo.Context) error {
 	trans := t.TransactionUsecase.Create(input.ToDomain())
 
 	if trans.ID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "create transaction failed")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "create transaction failed, user_id or office_id did not exist")
 	}
 
 	return ctrl.NewResponse(c, http.StatusCreated, "success", "transaction created", response.FromDomain(trans))
@@ -208,10 +215,18 @@ func (t *TransactionController) Update(c echo.Context) error {
 
 	var transactionId string = c.Param("id")
 
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
 	input := request.Transaction{}
 
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "validation failed", "")
+	}
+
+	if role == "user" {
+		intUserID, _ := strconv.Atoi(payload.ID)
+		input.UserID = uint(intUserID)
 	}
 
 	checkInDTO := request.CheckInDTO{}

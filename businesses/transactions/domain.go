@@ -19,7 +19,10 @@ type Domain struct {
 	Status        string
 	Drink         string
 	UserID        uint
+	UserFullName  string
+	UserEmail     string
 	OfficeID      uint
+	OfficeName    string
 }
 
 type Usecase interface {
