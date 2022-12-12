@@ -2,6 +2,8 @@ package transactions
 
 import (
 	transactions "backend/businesses/transactions"
+	// officeRecord "backend/drivers/mysql/offices"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -53,10 +55,40 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 
 	updatedTransaction := FromDomain(&transaction)
 	updatedTransaction.Price = transactionDomain.Price
+	updatedTransaction.CheckIn = transactionDomain.CheckIn
+	updatedTransaction.CheckOut = transactionDomain.CheckOut
+	updatedTransaction.Duration = transactionDomain.Duration
+	updatedTransaction.PaymentMethod = transactionDomain.PaymentMethod
+
+	if transactionDomain.Status == "" {
+		updatedTransaction.Status = transaction.Status
+		fmt.Println(updatedTransaction.Status)
+	} else {
+		updatedTransaction.Status = transactionDomain.Status
+	}
+
+	updatedTransaction.Drink = transactionDomain.Drink
 	updatedTransaction.UserID = transactionDomain.UserID
 	updatedTransaction.OfficeID = transactionDomain.OfficeID
 
-	t.conn.Where("id = ?", transaction.ID).Select("price", "user_id", "office_id").Updates(Transaction{Price: transactionDomain.Price, UserID: transactionDomain.UserID, OfficeID: transactionDomain.OfficeID})
+	result := t.conn.Where("id = ?", transaction.ID).
+		Select("price", "check_in", "check_out", "duration", "payment_method", "status", "drink", "user_id", "office_id").
+		Updates(Transaction{
+			Price:         updatedTransaction.Price,
+			CheckIn:       updatedTransaction.CheckIn,
+			CheckOut:      updatedTransaction.CheckOut,
+			Duration:      updatedTransaction.Duration,
+			PaymentMethod: updatedTransaction.PaymentMethod,
+			Status:        updatedTransaction.Status,
+			Drink:         updatedTransaction.Drink,
+			UserID:        updatedTransaction.UserID,
+			OfficeID:      updatedTransaction.OfficeID,
+		})
+
+	if result.RowsAffected == 0 {
+		updatedTransaction.UserID = 0
+		return updatedTransaction.ToDomain()
+	}
 
 	return updatedTransaction.ToDomain()
 }

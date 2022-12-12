@@ -7,17 +7,19 @@ import (
 )
 
 type Domain struct {
-	ID        uint
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
-	Price     uint
-	Duration  int
-	CheckIn   time.Time
-	CheckOut  time.Time
-	Drink     string
-	UserID    uint
-	OfficeID  uint
+	ID            uint
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt
+	Price         uint
+	CheckIn       time.Time
+	CheckOut      time.Time
+	Duration      int
+	PaymentMethod string
+	Status        string
+	Drink         string
+	UserID        uint
+	OfficeID      uint
 }
 
 type Usecase interface {
