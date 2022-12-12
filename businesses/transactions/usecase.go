@@ -32,6 +32,18 @@ func (tu *transactionUsecase) GetByID(id string) Domain {
 	return tu.transactionRepository.GetByID(id)
 }
 
+func (tu *transactionUsecase) GetByUserID(userId string) []Domain {
+	return tu.transactionRepository.GetByUserID(userId)
+}
+
+func (tu *transactionUsecase) AdminGetByUserID(userId string) []Domain {
+	return tu.transactionRepository.GetByUserID(userId)
+}
+
+func (tu *transactionUsecase) GetByOfficeID(officeId string) []Domain {
+	return tu.transactionRepository.GetByOfficeID(officeId)
+}
+
 func (tu *transactionUsecase) Update(id string, transactionDomain *Domain) Domain {
 	unixCheckIn := transactionDomain.CheckIn.Unix()
 	duration := int(unixCheckIn) + (transactionDomain.Duration * 3600)

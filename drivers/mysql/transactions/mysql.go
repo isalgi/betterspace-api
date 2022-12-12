@@ -32,6 +32,34 @@ func (t *TransactionRepository) GetAll() []transactions.Domain {
 	return TransactionDomain
 }
 
+func (t *TransactionRepository) GetByUserID(userId string) []transactions.Domain {
+	var rec []Transaction
+
+	t.conn.Where("user_id = ?", userId).Find(&rec)
+
+	TransactionDomain := []transactions.Domain{}
+
+	for _, trans := range rec {
+		TransactionDomain = append(TransactionDomain, trans.ToDomain())
+	}
+
+	return TransactionDomain
+}
+
+func (t *TransactionRepository) GetByOfficeID(officeId string) []transactions.Domain {
+	var rec []Transaction
+
+	t.conn.Where("office_id = ?", officeId).Find(&rec)
+
+	TransactionDomain := []transactions.Domain{}
+
+	for _, trans := range rec {
+		TransactionDomain = append(TransactionDomain, trans.ToDomain())
+	}
+
+	return TransactionDomain
+}
+
 func (t *TransactionRepository) Create(TransactionDomain *transactions.Domain) transactions.Domain {
 	rec := FromDomain(TransactionDomain)
 

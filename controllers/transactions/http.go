@@ -10,6 +10,7 @@ import (
 	"backend/utils"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -44,6 +45,83 @@ func (t *TransactionController) GetAll(c echo.Context) error {
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions", Transactions)
 }
+
+func (t *TransactionController) GetByUserID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	payload := helper.GetPayloadInfo(c)
+	userId := payload.ID
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByUserID(userId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+}
+
+func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	var userId string = c.Param("user_id")
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access this info")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByUserID(userId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by user ID : " + userId, Transactions)
+}
+
+func (t *TransactionController) GetByOfficeID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+	var officeId string = c.Param("office_id")
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access this info")
+	}
+
+	TransactionsData := t.TransactionUsecase.GetByOfficeID(officeId)
+
+	Transactions := []response.Transaction{}
+
+	for _, trans := range TransactionsData {
+		Transactions = append(Transactions, response.FromDomain(trans))
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "all transactions by office ID : " + officeId, Transactions)
+}
+
 
 func (t *TransactionController) Create(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
@@ -92,6 +170,9 @@ func (t *TransactionController) Create(c echo.Context) error {
 
 func (t *TransactionController) GetByID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
+	payload := helper.GetPayloadInfo(c)
+	userId := payload.ID
+	role := payload.Roles
 
 	isListed := middlewares.CheckToken(token.Raw)
 
@@ -105,6 +186,12 @@ func (t *TransactionController) GetByID(c echo.Context) error {
 
 	if transaction.ID == 0 {
 		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "transaction not found", "")
+	}
+
+	if role == "user" {
+		if strconv.Itoa(int(transaction.UserID)) != userId {
+			return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access other user transaction")
+		}
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction found", response.FromDomain(transaction))

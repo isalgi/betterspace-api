@@ -75,6 +75,17 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	facilities.PUT("/update/:id", cl.FacilityController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-facility"
 	facilities.DELETE("/delete/:id", cl.FacilityController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-delete-facility"
 
+
+	// endpoint admin : manage transactions
+	adminTransactions := admin.Group("/transactions")
+	adminTransactions.GET("/all", cl.TransactionController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-all-transaction"
+	adminTransactions.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-transaction-by-id"
+	adminTransactions.GET("/user/:user_id", cl.TransactionController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.GET("/office/:office_id", cl.TransactionController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.POST("/create", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-transaction"
+	adminTransactions.PUT("/update/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-transaction"
+	adminTransactions.DELETE("/delete/:id", cl.TransactionController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]delete-transaction"
+
 	// endpoint user : profile access
 	profile := v1.Group("/profile")
 	profile.GET("", cl.AuthController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-user-by-id"
@@ -97,11 +108,10 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	offices.GET("/recommendation", cl.OfficeController.GetRecommendation, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "recommendation-offices"
 	offices.GET("/nearest", cl.OfficeController.GetNearest, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-nearest-building"
 
-	transactions := v1.Group("/transactions", middleware.JWTWithConfig(cl.JWTMiddleware))
-
-	transactions.GET("", cl.TransactionController.GetAll).Name = "get-all-transaction"
-	transactions.POST("", cl.TransactionController.Create).Name = "create-transaction"
-	transactions.GET("/:id", cl.TransactionController.GetByID).Name = "get-transaction-by-id"
-	transactions.PUT("/:id", cl.TransactionController.Update).Name = "update-transaction"
-	transactions.DELETE("/:id", cl.TransactionController.Delete).Name = "delete-transaction"
+	// endpoint user : transactions access
+	transactions := v1.Group("/transactions")
+	transactions.GET("", cl.TransactionController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name= "get-user-transactions"
+	transactions.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-transaction-by-id"
+	transactions.POST("/create", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-transaction"
+	transactions.PUT("/update/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-transaction"
 }

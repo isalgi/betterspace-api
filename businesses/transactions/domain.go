@@ -24,6 +24,9 @@ type Domain struct {
 
 type Usecase interface {
 	GetAll() []Domain
+	GetByUserID(userId string) []Domain
+	AdminGetByUserID(userId string) []Domain
+	GetByOfficeID(officeId string) []Domain
 	Create(transactionDomain *Domain) Domain
 	GetByID(id string) Domain
 	Update(id string, transactionDomain *Domain) Domain
@@ -32,6 +35,8 @@ type Usecase interface {
 
 type Repository interface {
 	GetAll() []Domain
+	GetByUserID(userId string) []Domain
+	GetByOfficeID(officeId string) []Domain
 	Create(transactionDomain *Domain) Domain
 	GetByID(id string) Domain
 	Update(id string, transactionDomain *Domain) Domain
