@@ -98,7 +98,9 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 	updatedTransaction.UserID = transactionDomain.UserID
 	updatedTransaction.OfficeID = transactionDomain.OfficeID
 
-	result := t.conn.Preload("User").Preload("Office").Where("id = ?", transaction.ID).
+	t.conn.Preload("User").
+		Preload("Office").
+		Where("id = ?", transaction.ID).
 		Select("price", "check_in", "check_out", "duration", "payment_method", "status", "drink", "user_id", "office_id").
 		Updates(Transaction{
 			Price:         updatedTransaction.Price,
@@ -111,11 +113,6 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 			UserID:        updatedTransaction.UserID,
 			OfficeID:      updatedTransaction.OfficeID,
 		})
-
-	if result.RowsAffected == 0 {
-		updatedTransaction.UserID = 0
-		return updatedTransaction.ToDomain()
-	}
 
 	return updatedTransaction.ToDomain()
 }
