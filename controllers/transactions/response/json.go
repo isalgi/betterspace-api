@@ -12,32 +12,14 @@ type Transaction struct {
 	UpdatedAt     string         `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt `json:"deleted_at"`
 	Duration      int            `json:"duration"`
-	CheckIn       string         `json:"check_in"`
-	CheckOut      string         `json:"check_out"`
+	CheckIn       checkIn        `json:"check_in"`
+	CheckOut      checkOut       `json:"check_out"`
 	Price         uint           `json:"price"`
 	Drink         string         `json:"drink"`
 	Status        string         `json:"status"`
 	PaymentMethod string         `json:"payment_method"`
-	User          struct {
-		UserID   uint   `json:"user_id"`
-		FullName string `json:"full_name"`
-		Email    string `json:"email"`
-	}
-	Office struct {
-		OfficeID   uint   `json:"office_id"`
-		OfficeName string `json:"office_name"`
-	}
-}
-
-type user struct {
-	UserID   uint   `json:"user_id"`
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-}
-
-type office struct {
-	OfficeID   uint   `json:"office_id"`
-	OfficeName string `json:"office_name"`
+	User          user           `json:"user"`
+	Office        office         `json:"office"`
 }
 
 func FromDomain(domain transactions.Domain) Transaction {
@@ -46,13 +28,19 @@ func FromDomain(domain transactions.Domain) Transaction {
 		CreatedAt:     domain.CreatedAt.Format("02-01-2006 15:04:05"),
 		UpdatedAt:     domain.UpdatedAt.Format("02-01-2006 15:04:05"),
 		DeletedAt:     domain.DeletedAt,
-		CheckIn:       domain.CheckIn.Format("02-01-2006 15:04:05"),
-		CheckOut:      domain.CheckOut.Format("02-01-2006 15:04:05"),
 		Duration:      domain.Duration,
 		Price:         domain.Price,
 		Drink:         domain.Drink,
 		Status:        domain.Status,
 		PaymentMethod: domain.PaymentMethod,
+		CheckIn: checkIn{
+			Date: domain.CheckIn.Format("02-01-2006"),
+			Time: domain.CheckIn.Format("15:04"),
+		},
+		CheckOut: checkOut{
+			Date: domain.CheckOut.Format("02-01-2006"),
+			Time: domain.CheckOut.Format("15:04"),
+		},
 		User: user{
 			UserID:   domain.UserID,
 			FullName: domain.UserFullName,
@@ -61,6 +49,7 @@ func FromDomain(domain transactions.Domain) Transaction {
 		Office: office{
 			OfficeID:   domain.OfficeID,
 			OfficeName: domain.OfficeName,
+			OfficeType: domain.OfficeType,
 		},
 	}
 }

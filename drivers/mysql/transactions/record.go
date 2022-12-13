@@ -59,6 +59,7 @@ func (rec *Transaction) ToDomain() transactionUseCase.Domain {
 		UserEmail:     rec.User.Email,
 		UserID:        rec.User.ID,
 		OfficeName:    rec.Office.Title,
+		OfficeType: rec.Office.OfficeType,
 		OfficeID:      rec.OfficeID,
 		CreatedAt:     rec.CreatedAt,
 		UpdatedAt:     rec.UpdatedAt,

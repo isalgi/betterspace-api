@@ -23,6 +23,7 @@ type Domain struct {
 	UserEmail     string
 	OfficeID      uint
 	OfficeName    string
+	OfficeType    string
 }
 
 type Usecase interface {
