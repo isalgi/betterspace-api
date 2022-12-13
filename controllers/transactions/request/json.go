@@ -40,7 +40,13 @@ func (req *Transaction) ToDomain() *transactions.Domain {
 func (req *Transaction) Validate() error {
 	validate := validator.New()
 
-	err := validate.Struct(req)
+	err := utils.StatusValidation(req.Status)
+
+	if err != nil {
+		return err
+	}
+
+	err = validate.Struct(req)
 
 	return err
 }

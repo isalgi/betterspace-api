@@ -79,8 +79,26 @@ func (t *TransactionRepository) GetByID(id string) transactions.Domain {
 
 func (t *TransactionRepository) Update(id string, transactionDomain *transactions.Domain) transactions.Domain {
 	transaction := t.GetByID(id)
-
 	updatedTransaction := FromDomain(&transaction)
+
+	var getUserID uint
+	t.conn.Raw("SELECT ID FROM `users` WHERE `id` = ?", transactionDomain.UserID).Scan(&getUserID)
+	fmt.Println("user id", getUserID)
+	
+	if getUserID == 0 {
+		updatedTransaction.ID = 0
+		return updatedTransaction.ToDomain()
+	}
+	
+	var getOfficeID uint
+	t.conn.Raw("SELECT ID FROM `offices` WHERE `id` = ?", transactionDomain.OfficeID).Scan(&getOfficeID)
+	fmt.Println("office id", getOfficeID)
+	
+	if getOfficeID == 0 {
+		updatedTransaction.ID = 0
+		return updatedTransaction.ToDomain()
+	}
+
 	updatedTransaction.Price = transactionDomain.Price
 	updatedTransaction.CheckIn = transactionDomain.CheckIn
 	updatedTransaction.CheckOut = transactionDomain.CheckOut
@@ -98,21 +116,7 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 	updatedTransaction.UserID = transactionDomain.UserID
 	updatedTransaction.OfficeID = transactionDomain.OfficeID
 
-	t.conn.Preload("User").
-		Preload("Office").
-		Where("id = ?", transaction.ID).
-		Select("price", "check_in", "check_out", "duration", "payment_method", "status", "drink", "user_id", "office_id").
-		Updates(Transaction{
-			Price:         updatedTransaction.Price,
-			CheckIn:       updatedTransaction.CheckIn,
-			CheckOut:      updatedTransaction.CheckOut,
-			Duration:      updatedTransaction.Duration,
-			PaymentMethod: updatedTransaction.PaymentMethod,
-			Status:        updatedTransaction.Status,
-			Drink:         updatedTransaction.Drink,
-			UserID:        updatedTransaction.UserID,
-			OfficeID:      updatedTransaction.OfficeID,
-		})
+	t.conn.Preload("User").Preload("Office").Save(&updatedTransaction)
 
 	return updatedTransaction.ToDomain()
 }

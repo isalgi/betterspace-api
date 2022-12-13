@@ -215,18 +215,10 @@ func (t *TransactionController) Update(c echo.Context) error {
 
 	var transactionId string = c.Param("id")
 
-	payload := helper.GetPayloadInfo(c)
-	role := payload.Roles
-
 	input := request.Transaction{}
 
 	if err := c.Bind(&input); err != nil {
-		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "validation failed", "")
-	}
-
-	if role == "user" {
-		intUserID, _ := strconv.Atoi(payload.ID)
-		input.UserID = uint(intUserID)
+		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "bind failed", "")
 	}
 
 	checkInDTO := request.CheckInDTO{}
@@ -247,17 +239,13 @@ func (t *TransactionController) Update(c echo.Context) error {
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "validation failed", "")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("validation failed, %s", err))
 	}
 
 	transaction := t.TransactionUsecase.Update(transactionId, input.ToDomain())
 
 	if transaction.ID == 0 {
-		return ctrl.NewResponse(c, http.StatusNotFound, "failed", "transaction not found", "")
-	}
-
-	if transaction.UserID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "update failed, user or office not found")
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "transaction not found, check id parameter, user_id, or office_id")
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction updated", response.FromDomain(transaction))
