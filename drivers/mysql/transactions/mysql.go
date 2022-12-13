@@ -20,7 +20,9 @@ func NewMySQLRepository(conn *gorm.DB) transactions.Repository {
 func (t *TransactionRepository) GetAll() []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Preload("User").Preload("Office").Find(&rec)
+	t.conn.Preload("User", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Preload("Office", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -34,7 +36,10 @@ func (t *TransactionRepository) GetAll() []transactions.Domain {
 func (t *TransactionRepository) GetByUserID(userId string) []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Preload("User").Preload("Office").Where("user_id = ?", userId).Find(&rec)
+	t.conn.Preload("User", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Preload("Office", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Where("user_id = ?", userId).
+		Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -48,7 +53,10 @@ func (t *TransactionRepository) GetByUserID(userId string) []transactions.Domain
 func (t *TransactionRepository) GetByOfficeID(officeId string) []transactions.Domain {
 	var rec []Transaction
 
-	t.conn.Preload("User").Preload("Office").Where("office_id = ?", officeId).Find(&rec)
+	t.conn.Preload("User", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Preload("Office", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Where("office_id = ?", officeId).
+		Find(&rec)
 
 	TransactionDomain := []transactions.Domain{}
 
@@ -72,7 +80,9 @@ func (t *TransactionRepository) Create(TransactionDomain *transactions.Domain) t
 func (t *TransactionRepository) GetByID(id string) transactions.Domain {
 	var transaction Transaction
 
-	t.conn.Preload("User").Preload("Office").First(&transaction, "id = ?", id)
+	t.conn.Preload("User", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		Preload("Office", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
+		First(&transaction, "id = ?", id)
 
 	return transaction.ToDomain()
 }
@@ -116,7 +126,7 @@ func (t *TransactionRepository) Update(id string, transactionDomain *transaction
 	updatedTransaction.UserID = transactionDomain.UserID
 	updatedTransaction.OfficeID = transactionDomain.OfficeID
 
-	t.conn.Preload("User").Preload("Office").Save(&updatedTransaction)
+	t.conn.Unscoped().Preload("User").Preload("Office").Save(&updatedTransaction)
 
 	return updatedTransaction.ToDomain()
 }
