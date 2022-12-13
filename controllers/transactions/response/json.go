@@ -18,11 +18,26 @@ type Transaction struct {
 	Drink         string         `json:"drink"`
 	Status        string         `json:"status"`
 	PaymentMethod string         `json:"payment_method"`
-	UserID        uint           `json:"user_id"`
-	UserFullName  string         `json:"user_full_name"`
-	UserEmail     string         `json:"user_email"`
-	OfficeID      uint           `json:"office_id"`
-	OfficeName    string         `json:"office_name"`
+	User          struct {
+		UserID   uint   `json:"user_id"`
+		FullName string `json:"full_name"`
+		Email    string `json:"email"`
+	}
+	Office struct {
+		OfficeID   uint   `json:"office_id"`
+		OfficeName string `json:"office_name"`
+	}
+}
+
+type user struct {
+	UserID   uint   `json:"user_id"`
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+}
+
+type office struct {
+	OfficeID   uint   `json:"office_id"`
+	OfficeName string `json:"office_name"`
 }
 
 func FromDomain(domain transactions.Domain) Transaction {
@@ -38,10 +53,14 @@ func FromDomain(domain transactions.Domain) Transaction {
 		Drink:         domain.Drink,
 		Status:        domain.Status,
 		PaymentMethod: domain.PaymentMethod,
-		UserFullName:  domain.UserFullName,
-		UserEmail:     domain.UserEmail,
-		OfficeName:    domain.OfficeName,
-		UserID:        domain.UserID,
-		OfficeID:      domain.OfficeID,
+		User: user{
+			UserID:   domain.UserID,
+			FullName: domain.UserFullName,
+			Email:    domain.UserEmail,
+		},
+		Office: office{
+			OfficeID:   domain.OfficeID,
+			OfficeName: domain.OfficeName,
+		},
 	}
 }
