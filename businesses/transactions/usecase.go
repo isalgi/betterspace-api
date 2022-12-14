@@ -23,7 +23,6 @@ func (tu *transactionUsecase) Create(transactionDomain *Domain) Domain {
 	duration := int(unixCheckIn) + (transactionDomain.Duration * 3600)
 	checkOutTimestamp := time.Unix(int64(duration), 0)
 	transactionDomain.CheckOut = checkOutTimestamp
-	transactionDomain.Status = "on process"
 
 	return tu.transactionRepository.Create(transactionDomain)
 }

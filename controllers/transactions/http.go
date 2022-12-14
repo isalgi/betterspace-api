@@ -158,12 +158,13 @@ func (t *TransactionController) Create(c echo.Context) error {
 	if role == "user" {
 		intUserID, _ := strconv.Atoi(payload.ID)
 		input.UserID = uint(intUserID)
+		input.Status = "on process"
 	}
 
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("validation failed, %s", err))
 	}
 
 	trans := t.TransactionUsecase.Create(input.ToDomain())
