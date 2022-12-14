@@ -2,7 +2,6 @@ package transactions
 
 import (
 	transactions "backend/businesses/transactions"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -89,48 +88,19 @@ func (t *TransactionRepository) GetByID(id string) transactions.Domain {
 
 func (t *TransactionRepository) Update(id string, transactionDomain *transactions.Domain) transactions.Domain {
 	transaction := t.GetByID(id)
+
 	updatedTransaction := FromDomain(&transaction)
 
-	var getUserID uint
-	t.conn.Raw("SELECT ID FROM `users` WHERE `id` = ?", transactionDomain.UserID).Scan(&getUserID)
-	fmt.Println("user id", getUserID)
-	
-	if getUserID == 0 {
-		updatedTransaction.ID = 0
-		return updatedTransaction.ToDomain()
-	}
-	
-	var getOfficeID uint
-	t.conn.Raw("SELECT ID FROM `offices` WHERE `id` = ?", transactionDomain.OfficeID).Scan(&getOfficeID)
-	fmt.Println("office id", getOfficeID)
-	
-	if getOfficeID == 0 {
-		updatedTransaction.ID = 0
-		return updatedTransaction.ToDomain()
-	}
-
-	updatedTransaction.Price = transactionDomain.Price
-	updatedTransaction.CheckIn = transactionDomain.CheckIn
-	updatedTransaction.CheckOut = transactionDomain.CheckOut
-	updatedTransaction.Duration = transactionDomain.Duration
-	updatedTransaction.PaymentMethod = transactionDomain.PaymentMethod
-
-	if transactionDomain.Status == "" {
-		updatedTransaction.Status = transaction.Status
-		fmt.Println(updatedTransaction.Status)
-	} else {
-		updatedTransaction.Status = transactionDomain.Status
-	}
-
-	updatedTransaction.Drink = transactionDomain.Drink
-	updatedTransaction.UserID = transactionDomain.UserID
-	updatedTransaction.OfficeID = transactionDomain.OfficeID
+	updatedTransaction.Status = transactionDomain.Status
 
 	t.conn.Preload("User", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
 		Preload("Office", func(db *gorm.DB) *gorm.DB { return db.Unscoped() }).
 		Save(&updatedTransaction)
 
-	return updatedTransaction.ToDomain()
+	// get again for updated data
+	latest := t.GetByID(id)
+	
+	return latest
 }
 
 func (t *TransactionRepository) Delete(id string) bool {

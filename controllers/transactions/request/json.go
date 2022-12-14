@@ -24,6 +24,10 @@ type CheckInDTO struct {
 	CheckInDate string `json:"check_in_date" form:"check_in_date" validate:"required"`
 }
 
+type StatusDTO struct {
+	Status string `json:"status" form:"status"`
+}
+
 func (req *Transaction) ToDomain() *transactions.Domain {
 	return &transactions.Domain{
 		Price:         req.Price,
@@ -59,6 +63,16 @@ func (req *CheckInDTO) Validate() error {
 	}
 
 	err = utils.DateValidation(req.CheckInDate)
+
+	return err
+}
+
+func (req *StatusDTO) Validate() error {
+	var err error
+
+	if err = utils.StatusValidation(req.Status); err != nil {
+		return err
+	}
 
 	return err
 }

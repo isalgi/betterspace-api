@@ -13,6 +13,12 @@ type InfoResponse struct {
 	Message string `json:"message"`
 }
 
+type ErrorResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
 func NewResponse[T any](c echo.Context, statusCode int, statusMessage string, message string, data T) error {
 	return c.JSON(statusCode, Response[T]{
 		Status:  statusMessage,
@@ -25,5 +31,13 @@ func NewInfoResponse(c echo.Context, statusCode int, statusMessage string, messa
 	return c.JSON(statusCode, InfoResponse{
 		Status:  statusMessage,
 		Message: message,
+	})
+}
+
+func NewErrorResponse(c echo.Context, statusCode int, statusMessage string, message string, err string) error {
+	return c.JSON(statusCode, ErrorResponse{
+		Status:  statusMessage,
+		Message: message,
+		Error: err,
 	})
 }

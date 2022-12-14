@@ -23,6 +23,7 @@ func StatusValidation(str string) error {
 
 	for _, v := range list {
 		if strings.Contains(str, v) {
+			err = nil
 			return err
 		}
 	}

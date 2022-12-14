@@ -43,12 +43,16 @@ func (tu *transactionUsecase) GetByOfficeID(officeId string) []Domain {
 	return tu.transactionRepository.GetByOfficeID(officeId)
 }
 
-func (tu *transactionUsecase) Update(id string, transactionDomain *Domain) Domain {
-	unixCheckIn := transactionDomain.CheckIn.Unix()
-	duration := int(unixCheckIn) + (transactionDomain.Duration * 3600)
-	checkOutTimestamp := time.Unix(int64(duration), 0)
-	transactionDomain.CheckOut = checkOutTimestamp
-	return tu.transactionRepository.Update(id, transactionDomain)
+func (tu *transactionUsecase) Update(id string, status string) Domain {
+	transaction := tu.transactionRepository.GetByID(id)
+
+	if transaction.ID == 0 {
+		return transaction
+	}
+
+	transaction.Status = status
+
+	return tu.transactionRepository.Update(id, &transaction)
 }
 
 func (tu *transactionUsecase) Delete(id string) bool {
