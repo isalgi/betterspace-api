@@ -270,3 +270,37 @@ func (t *TransactionController) Delete(c echo.Context) error {
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction deleted", "")
 }
+
+
+func (t *TransactionController) Cancel(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "user" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "admin not allowed")
+	}
+
+	var transactionId string = c.Param("id")
+
+	userId := payload.ID
+
+	transaction := t.TransactionUsecase.Cancel(transactionId, userId)
+
+	if transaction.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "transaction not found")
+	}
+
+	if transaction.UserID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed")
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction cancelled", response.FromDomain(transaction))
+}

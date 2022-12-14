@@ -35,6 +35,7 @@ type Usecase interface {
 	GetByID(id string) Domain
 	Update(id string, status string) Domain
 	Delete(id string) bool
+	Cancel(transactionId string, userId string) Domain
 }
 
 type Repository interface {

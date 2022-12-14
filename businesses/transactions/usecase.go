@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -57,4 +58,17 @@ func (tu *transactionUsecase) Update(id string, status string) Domain {
 
 func (tu *transactionUsecase) Delete(id string) bool {
 	return tu.transactionRepository.Delete(id)
+}
+
+func (tu *transactionUsecase) Cancel(transactionId string, userId string) Domain {
+	transaction := tu.transactionRepository.GetByID(transactionId)
+	
+	if userId != strconv.Itoa(int(transaction.UserID)) {
+		transaction.UserID = 0
+		return transaction
+	}
+
+	transaction.Status = "cancelled"
+
+	return tu.transactionRepository.Update(transactionId, &transaction)
 }

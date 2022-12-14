@@ -115,5 +115,5 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	transactionsDetails := transactions.Group("/details")
 	transactionsDetails.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-transaction-by-id"
 	transactionsDetails.POST("", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-transaction"
-	transactionsDetails.PUT("/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-transaction"
+	transactionsDetails.PUT("/:id/cancel", cl.TransactionController.Cancel, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-cancel-transaction"
 }
