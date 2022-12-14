@@ -27,5 +27,5 @@ func (e *lngError) Error() string {
 }
 
 func (e *statusError) Error() string {
-	return "incorrect status input, status list ['pending','on process','accepted','cancelled']"
+	return "incorrect status input, status list ['pending','on process','accepted','cancelled','rejected']"
 }

@@ -18,7 +18,7 @@ type Transaction struct {
 	CheckIn       time.Time      `json:"check_in" gorm:"type:timestamp;not null;default:now()"`
 	CheckOut      time.Time      `json:"check_out" gorm:"type:timestamp;not null;default:now()"`
 	Duration      int            `json:"duration" form:"duration"`
-	Status        string         `gorm:"type:enum('pending','on process','accepted','cancelled')" json:"status"`
+	Status        string         `gorm:"type:enum('pending','on process','accepted','cancelled','rejected')" json:"status"`
 	Drink         string         `json:"drink"`
 	PaymentMethod string         `json:"payment_method"`
 	UserID        uint           `json:"user_id"`
