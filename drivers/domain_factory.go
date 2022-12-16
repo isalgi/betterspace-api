@@ -5,6 +5,7 @@ import (
 	officeFacilityDomain "backend/businesses/office_facilities"
 	officeImageDomain "backend/businesses/office_images"
 	officeDomain "backend/businesses/offices"
+	reviewDomain "backend/businesses/review"
 	transactionDomain "backend/businesses/transactions"
 	userDomain "backend/businesses/users"
 
@@ -12,6 +13,7 @@ import (
 	officeFacilityDB "backend/drivers/mysql/office_facilities"
 	officeImageDB "backend/drivers/mysql/office_images"
 	officeDB "backend/drivers/mysql/offices"
+	reviewDB "backend/drivers/mysql/review"
 	transactionDB "backend/drivers/mysql/transactions"
 	userDB "backend/drivers/mysql/users"
 
@@ -40,4 +42,8 @@ func NewOfficeFacilityRepository(conn *gorm.DB) officeFacilityDomain.Repository 
 
 func NewTransactionRepository(conn *gorm.DB) transactionDomain.Repository {
 	return transactionDB.NewMySQLRepository(conn)
+}
+
+func NewReviewRepository(conn *gorm.DB) reviewDomain.Repository {
+	return reviewDB.NewMySQLRepository(conn)
 }
