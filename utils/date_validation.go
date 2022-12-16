@@ -19,10 +19,11 @@ func DateValidation(date string) error {
 
 func StatusValidation(str string) error {
 	var err error
-	var list = []string{"pending","on process","accepted","cancelled"}
+	var list = []string{"pending","on process","accepted","cancelled","rejected"}
 
 	for _, v := range list {
 		if strings.Contains(str, v) {
+			err = nil
 			return err
 		}
 	}

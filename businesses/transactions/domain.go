@@ -33,8 +33,9 @@ type Usecase interface {
 	GetByOfficeID(officeId string) []Domain
 	Create(transactionDomain *Domain) Domain
 	GetByID(id string) Domain
-	Update(id string, transactionDomain *Domain) Domain
+	Update(id string, status string) Domain
 	Delete(id string) bool
+	Cancel(transactionId string, userId string) Domain
 }
 
 type Repository interface {

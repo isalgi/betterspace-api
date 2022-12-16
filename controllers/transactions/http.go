@@ -158,12 +158,13 @@ func (t *TransactionController) Create(c echo.Context) error {
 	if role == "user" {
 		intUserID, _ := strconv.Atoi(payload.ID)
 		input.UserID = uint(intUserID)
+		input.Status = "on process"
 	}
 
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("validation failed, %s", err))
 	}
 
 	trans := t.TransactionUsecase.Create(input.ToDomain())
@@ -213,39 +214,31 @@ func (t *TransactionController) Update(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "not allowed")
+	}
+
 	var transactionId string = c.Param("id")
 
-	input := request.Transaction{}
+	input := request.StatusDTO{}
 
 	if err := c.Bind(&input); err != nil {
-		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "bind failed", "")
+		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
 	}
-
-	checkInDTO := request.CheckInDTO{}
-
-	if err := c.Bind(&checkInDTO); err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind time failed")
-	}
-
-	// input hour validation
-	if err := checkInDTO.Validate(); err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
-	}
-
-	checkInHour := utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
-
-	input.CheckIn = checkInHour
 
 	err := input.Validate()
 
 	if err != nil {
-		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("validation failed, %s", err))
+		return ctrl.NewErrorResponse(c, http.StatusBadRequest, "failed", "validation failed", err.Error())
 	}
 
-	transaction := t.TransactionUsecase.Update(transactionId, input.ToDomain())
+	transaction := t.TransactionUsecase.Update(transactionId, input.Status)
 
 	if transaction.ID == 0 {
-		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "transaction not found, check id parameter, user_id, or office_id")
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "transaction not found")
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction updated", response.FromDomain(transaction))
@@ -276,4 +269,38 @@ func (t *TransactionController) Delete(c echo.Context) error {
 	}
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction deleted", "")
+}
+
+
+func (t *TransactionController) Cancel(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "user" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "admin not allowed")
+	}
+
+	var transactionId string = c.Param("id")
+
+	userId := payload.ID
+
+	transaction := t.TransactionUsecase.Cancel(transactionId, userId)
+
+	if transaction.ID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", "transaction not found")
+	}
+
+	if transaction.UserID == 0 {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed")
+	}
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction cancelled", response.FromDomain(transaction))
 }
