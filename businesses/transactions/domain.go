@@ -36,6 +36,8 @@ type Usecase interface {
 	Update(id string, status string) Domain
 	Delete(id string) bool
 	Cancel(transactionId string, userId string) Domain
+	TotalTransactions() int
+	TotalTransactionsByOfficeID(officeId string) int
 }
 
 type Repository interface {
@@ -46,4 +48,6 @@ type Repository interface {
 	GetByID(id string) Domain
 	Update(id string, transactionDomain *Domain) Domain
 	Delete(id string) bool
+	TotalTransactions() int
+	TotalTransactionsByOfficeID(officeId string) int
 }

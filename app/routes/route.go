@@ -84,6 +84,8 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	adminTransactionsDetail.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-transaction-by-id"
 	adminTransactions.GET("/user/:user_id", cl.TransactionController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminTransactions.GET("/office/:office_id", cl.TransactionController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.GET("/total", cl.TransactionController.GetTotalTransactions, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.GET("/office/:office_id/total", cl.TransactionController.GetTotalTransactionsByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminTransactionsDetail.POST("", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-transaction"
 	adminTransactionsDetail.PUT("/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-transaction"
 	adminTransactionsDetail.DELETE("/:id", cl.TransactionController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]delete-transaction"
