@@ -72,6 +72,12 @@ func (or *officeRepository) GetAll() []offices.Domain {
 			}
 		}
 
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -120,6 +126,12 @@ func (or *officeRepository) GetByID(id string) offices.Domain {
 	office.FacilitiesId =  facilitesId
 	office.FacilitiesDesc = facilitesDesc
 	office.FacilitesSlug = facilitiesSlug
+
+	var count int64
+
+	or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+	office.TotalBooked = count
 
 	return office.ToDomain()
 }
@@ -334,6 +346,12 @@ func (or *officeRepository) SearchByCity(city string) []offices.Domain {
 			}
 		}
 
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -397,6 +415,12 @@ func (or *officeRepository) SearchByRate(rate string) []offices.Domain {
 			}
 		}
 
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -453,6 +477,12 @@ func (or *officeRepository) SearchByTitle(title string) []offices.Domain {
 				office.FacilitesSlug = facilitiesSlug
 			}
 		}
+
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -511,6 +541,12 @@ func (or *officeRepository) GetOffices() []offices.Domain {
 			}
 		}
 
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -567,6 +603,12 @@ func (or *officeRepository) GetCoworkingSpace() []offices.Domain {
 				office.FacilitesSlug = facilitiesSlug
 			}
 		}
+
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -625,6 +667,12 @@ func (or *officeRepository) GetMeetingRooms() []offices.Domain {
 			}
 		}
 
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -681,6 +729,12 @@ func (or *officeRepository) GetRecommendation() []offices.Domain {
 				office.FacilitesSlug = facilitiesSlug
 			}
 		}
+
+		var count int64
+
+		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+		office.TotalBooked = count
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -757,6 +811,12 @@ func (or *officeRepository) GetNearest(lat string, long string) []offices.Domain
 					office.FacilitesSlug = facilitiesSlug
 				}
 			}
+
+			var count int64
+
+			or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
+
+			office.TotalBooked = count
 
 			if strconv.Itoa(int(office.ID)) == d.Id {
 				office.Distance = d.Distance

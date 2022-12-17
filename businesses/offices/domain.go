@@ -33,6 +33,7 @@ type Domain struct {
 	FacilitesSlug  []string
 	Distance       float64
 	Rate           float64
+	TotalBooked    int64
 }
 
 type Usecase interface {
