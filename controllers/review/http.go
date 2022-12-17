@@ -59,6 +59,14 @@ func (r *ReviewController) Create(c echo.Context) error {
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
+	
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role == "user" {
+		intUserID, _ := strconv.Atoi(payload.ID)
+		input.UserID = uint(intUserID)
+	}
 
 	err := input.Validate()
 
@@ -119,6 +127,14 @@ func (r *ReviewController) Update(c echo.Context) error {
 
 	if err := c.Bind(&input); err != nil {
 		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "bind failed", "")
+	}
+	
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role == "user" {
+		intUserID, _ := strconv.Atoi(payload.ID)
+		input.UserID = uint(intUserID)
 	}
 
 	err := input.Validate()
