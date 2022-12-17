@@ -231,17 +231,11 @@ func (r *ReviewController) AdminGetByUserID(c echo.Context) error {
 func (r *ReviewController) GetByOfficeID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	var officeId string = c.Param("office_id")
-	payload := helper.GetPayloadInfo(c)
-	role := payload.Roles
-
+	
 	isListed := middlewares.CheckToken(token.Raw)
 
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
-	}
-
-	if role != "admin" {
-		return ctrl.NewInfoResponse(c, http.StatusForbidden, "failed", "not allowed to access this info")
 	}
 
 	ReviewData := r.ReviewUsecase.GetByOfficeID(officeId)

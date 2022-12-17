@@ -96,7 +96,6 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	adminReview.GET("", cl.ReviewController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-all-review"
 	adminReviewDetail.GET("/:id", cl.ReviewController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-review-by-id"
 	adminReview.GET("/user/:user_id", cl.ReviewController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
-	adminReview.GET("/office/:office_id", cl.ReviewController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminReviewDetail.POST("", cl.ReviewController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-review"
 	adminReviewDetail.PUT("/:id", cl.ReviewController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-review"
 	adminReviewDetail.DELETE("/:id", cl.ReviewController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]delete-review"
@@ -141,4 +140,5 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	reviewDetails.GET("/:id", cl.ReviewController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-review-by-id"
 	reviewDetails.POST("", cl.ReviewController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-review"
 	reviewDetails.PUT("/:id", cl.ReviewController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-review"
+	reviewDetails.GET("/office/:office_id", cl.ReviewController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-review-by-office-id"
 }

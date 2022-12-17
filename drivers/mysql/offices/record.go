@@ -28,28 +28,29 @@ type Office struct {
 	City           string         `gorm:"type:enum('central jakarta', 'south jakarta', 'west jakarta', 'east jakarta', 'thousand islands')" json:"city" form:"city"`
 	District       string         `json:"district" form:"district"`
 	Address        string         `json:"address" form:"address"`
-	Rate           float64        `json:"rate" form:"rate"`
+	Rate           float64        `gorm:"-"`
 	Images         []string       `gorm:"-"`
 	FacilitiesId   []string       `gorm:"-"`
 	FacilitiesDesc []string       `gorm:"-"`
 	FacilitesSlug  []string       `gorm:"-"`
-	Distance 	   float64		  `gorm:"-"`
+	Distance       float64        `gorm:"-"`
+	TotalBooked    int64          `gorm:"-"`
 }
 
 type imgs struct {
-	Id string
+	Id     string
 	Images string
 }
 
 type facilities struct {
-	Id string
-	F_id string
+	Id     string
+	F_id   string
 	F_desc string
 	F_slug string
 }
 
 type distance struct {
-	Id string
+	Id       string
 	Distance float64
 }
 
@@ -77,7 +78,7 @@ func FromDomain(domain *officeUsecase.Domain) *Office {
 		FacilitiesId:   domain.FacilitiesId,
 		FacilitiesDesc: domain.FacilitiesDesc,
 		FacilitesSlug:  domain.FacilitesSlug,
-		Distance: 		domain.Distance,
+		Distance:       domain.Distance,
 		CreatedAt:      domain.CreatedAt,
 		UpdatedAt:      domain.UpdatedAt,
 		DeletedAt:      domain.DeletedAt,
@@ -108,7 +109,8 @@ func (rec *Office) ToDomain() officeUsecase.Domain {
 		FacilitiesId:   rec.FacilitiesId,
 		FacilitiesDesc: rec.FacilitiesDesc,
 		FacilitesSlug:  rec.FacilitesSlug,
-		Distance: 		rec.Distance,	
+		Distance:       rec.Distance,
+		TotalBooked:    rec.TotalBooked,
 		CreatedAt:      rec.CreatedAt,
 		UpdatedAt:      rec.UpdatedAt,
 		DeletedAt:      rec.DeletedAt,

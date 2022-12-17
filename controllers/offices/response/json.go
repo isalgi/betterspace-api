@@ -32,6 +32,7 @@ type Office struct {
 	FacilityModel []FacilityItem `json:"facility_model"`
 	Distance      float64        `json:"distance" form:"distance"`
 	Rate          float64        `json:"rate" form:"rate"`
+	TotalBooked   int64          `json:"total_booked"`
 }
 
 func FromDomain(domain offices.Domain) Office {
@@ -59,6 +60,7 @@ func FromDomain(domain offices.Domain) Office {
 		Images:        domain.Images,
 		Distance:      domain.Distance,
 		Rate:          domain.Rate,
+		TotalBooked:   domain.TotalBooked,
 		CreatedAt:     domain.CreatedAt.Format("02-01-2006 15:04:05"),
 		UpdatedAt:     domain.UpdatedAt.Format("02-01-2006 15:04:05"),
 		DeletedAt:     domain.DeletedAt.Time.Format("01-02-2006 15:04:05"),
