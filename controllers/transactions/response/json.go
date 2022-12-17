@@ -20,6 +20,9 @@ type Transaction struct {
 	PaymentMethod string         `json:"payment_method"`
 	User          user           `json:"user"`
 	Office        office         `json:"office"`
+	UserFullName  string         `json:"user_full_name"`
+	OfficeType    string         `json:"offices_office_type"`
+	CheckinDate   string         `json:"check_in_date"`
 }
 
 func FromDomain(domain transactions.Domain) Transaction {
@@ -51,5 +54,8 @@ func FromDomain(domain transactions.Domain) Transaction {
 			OfficeName: domain.OfficeName,
 			OfficeType: domain.OfficeType,
 		},
+		UserFullName: domain.UserFullName,
+		OfficeType:   domain.OfficeType,
+		CheckinDate:  domain.CheckIn.Format("02-01-2006"),
 	}
 }

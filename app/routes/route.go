@@ -5,6 +5,7 @@ import (
 	officefacilities "backend/controllers/office_facilities"
 	officeimage "backend/controllers/office_images"
 	"backend/controllers/offices"
+	review "backend/controllers/review"
 	transactions "backend/controllers/transactions"
 	"backend/controllers/users"
 
@@ -21,6 +22,7 @@ type ControllerList struct {
 	FacilityController       facilities.FacilityController
 	OfficeFacilityController officefacilities.OfficeFacilityController
 	TransactionController    transactions.TransactionController
+	ReviewController         review.ReviewController
 }
 
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
@@ -34,16 +36,16 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 			echo.HeaderServer,
 		},
 	}))
-	
+
 	e.Use(cl.LoggerMiddleware)
 
 	e.GET("", cl.AuthController.HelloMessage)
-  
+
 	v1 := e.Group("/api/v1")
-  
+
 	// endpoint login, register, access refresh token
 	v1.GET("", cl.AuthController.HelloMessage)
-  	v1.POST("/register", cl.AuthController.Register)
+	v1.POST("/register", cl.AuthController.Register)
 	v1.POST("/login", cl.AuthController.Login)
 	v1.POST("/refresh", cl.AuthController.Token, middleware.JWTWithConfig(cl.JWTMiddleware))
 	v1.POST("/logout", cl.AuthController.Logout, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-logout"
@@ -65,7 +67,7 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	officeAdmin.POST("/create", cl.OfficeController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-office"
 	officeAdmin.PUT("/update/:office_id", cl.OfficeController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-office"
 	officeAdmin.DELETE("/delete/:office_id", cl.OfficeController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-delete-office"
-	officeAdmin.GET("/all", cl.OfficeController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name="[admin]-get-all-type-of-offices"
+	officeAdmin.GET("/all", cl.OfficeController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-all-type-of-offices"
 
 	// endpoint admin : manage facilities
 	facilities := admin.Group("/facilities")
@@ -82,9 +84,22 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	adminTransactionsDetail.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-transaction-by-id"
 	adminTransactions.GET("/user/:user_id", cl.TransactionController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminTransactions.GET("/office/:office_id", cl.TransactionController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.GET("/total", cl.TransactionController.GetTotalTransactions, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminTransactions.GET("/office/:office_id/total", cl.TransactionController.GetTotalTransactionsByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminTransactionsDetail.POST("", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-transaction"
 	adminTransactionsDetail.PUT("/:id", cl.TransactionController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-transaction"
 	adminTransactionsDetail.DELETE("/:id", cl.TransactionController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]delete-transaction"
+
+	// endpoint admin : manage review
+	adminReview := admin.Group("/review")
+	adminReviewDetail := adminReview.Group("/details")
+	adminReview.GET("", cl.ReviewController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-all-review"
+	adminReviewDetail.GET("/:id", cl.ReviewController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-review-by-id"
+	adminReview.GET("/user/:user_id", cl.ReviewController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminReview.GET("/office/:office_id", cl.ReviewController.GetByOfficeID, middleware.JWTWithConfig(cl.JWTMiddleware))
+	adminReviewDetail.POST("", cl.ReviewController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-review"
+	adminReviewDetail.PUT("/:id", cl.ReviewController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-update-review"
+	adminReviewDetail.DELETE("/:id", cl.ReviewController.Delete, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]delete-review"
 
 	// endpoint user : profile access
 	profile := v1.Group("/profile")
@@ -110,10 +125,20 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 
 	// endpoint user : transactions access
 	transactions := v1.Group("/transactions")
-	transactions.GET("", cl.TransactionController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name= "get-user-transactions"
-	
+	transactions.GET("", cl.TransactionController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-user-transactions"
+
 	transactionsDetails := transactions.Group("/details")
 	transactionsDetails.GET("/:id", cl.TransactionController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-transaction-by-id"
 	transactionsDetails.POST("", cl.TransactionController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-transaction"
 	transactionsDetails.PUT("/:id/cancel", cl.TransactionController.Cancel, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-cancel-transaction"
+
+	// endpoint user : review  access
+
+	review := v1.Group("/review")
+	review.GET("", cl.ReviewController.GetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-user-review"
+
+	reviewDetails := review.Group("/details")
+	reviewDetails.GET("/:id", cl.ReviewController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "get-review-by-id"
+	reviewDetails.POST("", cl.ReviewController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "user-create-review"
+	reviewDetails.PUT("/:id", cl.ReviewController.Update, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "update-review"
 }

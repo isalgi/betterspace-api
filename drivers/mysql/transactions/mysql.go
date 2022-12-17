@@ -112,3 +112,19 @@ func (t *TransactionRepository) Delete(id string) bool {
 
 	return result.RowsAffected != 0
 }
+
+func (t *TransactionRepository) TotalTransactions() int {
+	var count int64
+
+	t.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Count(&count)
+
+	return int(count)
+}
+
+func (t *TransactionRepository) TotalTransactionsByOfficeID(officeId string) int {
+	var count int64
+
+	t.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", officeId).Count(&count)
+
+	return int(count)
+}

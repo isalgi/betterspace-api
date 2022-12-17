@@ -72,3 +72,11 @@ func (tu *transactionUsecase) Cancel(transactionId string, userId string) Domain
 
 	return tu.transactionRepository.Update(transactionId, &transaction)
 }
+
+func (tu *transactionUsecase) TotalTransactions() int {
+	return tu.transactionRepository.TotalTransactions()
+}
+
+func (tu *transactionUsecase) TotalTransactionsByOfficeID(officeId string) int {
+	return tu.transactionRepository.TotalTransactionsByOfficeID(officeId)
+}

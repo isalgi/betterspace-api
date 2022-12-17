@@ -304,3 +304,48 @@ func (t *TransactionController) Cancel(c echo.Context) error {
 
 	return ctrl.NewResponse(c, http.StatusOK, "success", "transaction cancelled", response.FromDomain(transaction))
 }
+
+// TotalTransactions() int
+func (t *TransactionController) GetTotalTransactions(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "admin not allowed")
+	}
+
+	totalTransactions := t.TransactionUsecase.TotalTransactions()
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "total transactions", totalTransactions)
+}
+	// TotalTransactionsByOfficeID(officeId string) int
+func (t *TransactionController) GetTotalTransactionsByOfficeID(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+
+	payload := helper.GetPayloadInfo(c)
+	role := payload.Roles
+
+	if role != "admin" {
+		return ctrl.NewInfoResponse(c, http.StatusForbidden, "forbidden", "admin not allowed")
+	}
+
+	var officeId string = c.Param("office_id")
+
+	totalTransactionsPerOffice := t.TransactionUsecase.TotalTransactionsByOfficeID(officeId)
+
+	return ctrl.NewResponse(c, http.StatusOK, "success", "total transactions by office_id = " + officeId, totalTransactionsPerOffice)
+}
