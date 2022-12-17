@@ -28,7 +28,7 @@ type Office struct {
 	City           string         `gorm:"type:enum('central jakarta', 'south jakarta', 'west jakarta', 'east jakarta', 'thousand islands')" json:"city" form:"city"`
 	District       string         `json:"district" form:"district"`
 	Address        string         `json:"address" form:"address"`
-	Rate           float64        `json:"rate" form:"rate"`
+	Rate           float64        `gorm:"-"`
 	Images         []string       `gorm:"-"`
 	FacilitiesId   []string       `gorm:"-"`
 	FacilitiesDesc []string       `gorm:"-"`

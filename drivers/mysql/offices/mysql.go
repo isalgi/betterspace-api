@@ -78,6 +78,12 @@ func (or *officeRepository) GetAll() []offices.Domain {
 
 		office.TotalBooked = count
 
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -132,6 +138,12 @@ func (or *officeRepository) GetByID(id string) offices.Domain {
 	or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
 	office.TotalBooked = count
+
+	var rate_score float64
+
+	or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+	office.Rate = rate_score
 
 	return office.ToDomain()
 }
@@ -352,6 +364,12 @@ func (or *officeRepository) SearchByCity(city string) []offices.Domain {
 
 		office.TotalBooked = count
 
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -359,69 +377,27 @@ func (or *officeRepository) SearchByCity(city string) []offices.Domain {
 }
 
 func (or *officeRepository) SearchByRate(rate string) []offices.Domain {
-	var rec []Office
-
+	rec  := or.GetAll()
+	var officeDomain []offices.Domain
 	intRate, _ := strconv.Atoi(rate)
 
-	if intRate == 5 {
-		or.conn.Find(&rec, "rate = ?", rate)
-	} else {
-		or.conn.Where("rate >= ? AND rate < ?", rate, intRate+1).Order("rate desc, title").Find(&rec)
-	}
+	for _, v := range rec {
+		office := FromDomain(&v)
 
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " +
-		"INNER JOIN office_images on offices.id = office_images.office_id " +
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " +
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " +
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " +
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " +
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
+		switch intRate {
+			case 5:
+				if office.Rate == 5 {
+					officeDomain = append(officeDomain, office.ToDomain())
+				}
+			case 0:
+				if office.Rate == 0 {
+					officeDomain = append(officeDomain, office.ToDomain())
+				}
+			default:
+				if office.Rate >= float64(intRate) && office.Rate < (float64(intRate) + 1) {
+					officeDomain = append(officeDomain, office.ToDomain())
+				}
 		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
 	return officeDomain
@@ -483,6 +459,12 @@ func (or *officeRepository) SearchByTitle(title string) []offices.Domain {
 		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
 		office.TotalBooked = count
+
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -547,6 +529,12 @@ func (or *officeRepository) GetOffices() []offices.Domain {
 
 		office.TotalBooked = count
 
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -609,6 +597,12 @@ func (or *officeRepository) GetCoworkingSpace() []offices.Domain {
 		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
 		office.TotalBooked = count
+
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -673,6 +667,12 @@ func (or *officeRepository) GetMeetingRooms() []offices.Domain {
 
 		office.TotalBooked = count
 
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
+
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -735,6 +735,12 @@ func (or *officeRepository) GetRecommendation() []offices.Domain {
 		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
 		office.TotalBooked = count
+
+		var rate_score float64
+
+		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+		office.Rate = rate_score
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
@@ -817,6 +823,12 @@ func (or *officeRepository) GetNearest(lat string, long string) []offices.Domain
 			or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
 			office.TotalBooked = count
+
+			var rate_score float64
+
+			or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+
+			office.Rate = rate_score
 
 			if strconv.Itoa(int(office.ID)) == d.Id {
 				office.Distance = d.Distance
