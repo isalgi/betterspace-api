@@ -28,6 +28,9 @@ import (
 	_transactionUseCase "backend/businesses/transactions"
 	_transactionController "backend/controllers/transactions"
 
+	_reviewUseCase "backend/businesses/review"
+	_reviewController "backend/controllers/review"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -81,6 +84,10 @@ func main() {
 	TransactionUseCase := _transactionUseCase.NewTransactionUsecase(TransactionRepo)
 	TransactionCtrl := _transactionController.NewTransactionController(TransactionUseCase)
 
+	reviewRepo := _driverFactory.NewReviewRepository(db)
+	reviewUseCase := _reviewUseCase.NewReviewUsecase(reviewRepo)
+	reviewCtrl := _reviewController.NewReviewController(reviewUseCase)
+
 	routesInit := _routes.ControllerList{
 		LoggerMiddleware:         configLogger.Init(),
 		JWTMiddleware:            configJWT.Init(),
@@ -90,6 +97,7 @@ func main() {
 		FacilityController:       *facilityCtrl,
 		OfficeFacilityController: *officeFacilityCtrl,
 		TransactionController:    *TransactionCtrl,
+		ReviewController: *reviewCtrl,
 	}
 
 	routesInit.RouteRegister(app)
