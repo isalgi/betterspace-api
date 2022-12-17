@@ -356,15 +356,10 @@ func (oc *OfficeController) SearchByTitle(c echo.Context) error {
 	
 	var title string = c.QueryParam("search")
 
-	offices := []response.Office{}
 
-	officesData := oc.officeUsecase.SearchByTitle(title)
+	offices := oc.officeUsecase.SearchByTitle(title)
 
-	for _, office := range officesData {
-		offices = append(offices, response.FromDomain(office))
-	}
-
-	if len(offices) == 0 {
+	if offices.ID == 0 {
 		return ctrl.NewInfoResponse(c, http.StatusNotFound, "failed", fmt.Sprintf("city with title = %s not found", title))
 	}
 

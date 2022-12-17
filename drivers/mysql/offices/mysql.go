@@ -24,66 +24,54 @@ func (or *officeRepository) GetAll() []offices.Domain {
 	var rec []Office
 
 	or.conn.Find(&rec)
-	
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " +
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
 
 	officeDomain := []offices.Domain{}
 	
 	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
+		var images string
 		var count int64
+		var rate_score float64
+		var officeFacilities facilities
+	
+		// get office images
+		or.conn.Table("office_images").
+			Where("office_id = ?", office.ID).
+			Select("GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ')").
+			Scan(&images)
 
+		img := strings.Split(images, " , ")
+		office.Images = img
+
+		// get office facilities
+		groupConcatFacId := "GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id"
+		groupConcatFacDesc := "GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc"
+		groupConcatFacSlug := "GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug"
+		querySelect := fmt.Sprintf("%s, %s, %s", groupConcatFacId, groupConcatFacDesc, groupConcatFacSlug)
+
+		or.conn.Table("offices").
+			Select(querySelect).
+			Joins("INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id`").
+			Joins("INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` WHERE `office_id` = ?", office.ID).
+			Scan(&officeFacilities)
+
+		facilitesId := strings.Split(officeFacilities.F_id, " , ")
+		facilitesDesc := strings.Split(officeFacilities.F_desc, " , ")
+		facilitiesSlug := strings.Split(officeFacilities.F_slug, " , ")
+
+		// total_booked counter
 		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
 
-		office.TotalBooked = count
-
-		var rate_score float64
-
+		// average rating counter
 		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
 
+		// assign values
+		office.FacilitiesId =  facilitesId
+		office.FacilitiesDesc = facilitesDesc
+		office.FacilitesSlug = facilitiesSlug
 		office.Rate = rate_score
+		office.TotalBooked = count
 
+		// append value
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -92,57 +80,51 @@ func (or *officeRepository) GetAll() []offices.Domain {
 
 func (or *officeRepository) GetByID(id string) offices.Domain {
 	var office Office
+	var images string
+	var count int64
+	var rate_score float64
 
 	or.conn.First(&office, "id = ?", id)
 	
-	var imagesString string
-	
 	// get office images
-	querySQL := fmt.Sprintf("SELECT GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"WHERE `offices`.`id` = %s " + 
-		"GROUP BY offices.id", id)
+	or.conn.Table("office_images").
+		Where("office_id = ?", id).
+		Select("GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ')").
+		Scan(&images)
 
-	or.conn.Raw(querySQL).Scan(&imagesString)
-
-	img := strings.Split(imagesString, " , ")
+	img := strings.Split(images, " , ")
 	office.Images = img
 
-	var fac facilities
+	var officeFacilities facilities
 
-	querySQL = fmt.Sprintf("SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"WHERE `offices`.`id` = %s", id)
+	// get office facilities
+	groupConcatFacId := "GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id"
+	groupConcatFacDesc := "GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc"
+	groupConcatFacSlug := "GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug"
+	querySelect := fmt.Sprintf("%s, %s, %s", groupConcatFacId, groupConcatFacDesc, groupConcatFacSlug)
 
-	or.conn.Raw(querySQL).Scan(&fac)
+	or.conn.Table("offices").
+		Select(querySelect).
+		Joins("INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id`").
+		Joins("INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` WHERE `office_id` = ?", office.ID).
+		Scan(&officeFacilities)
 
-	f_id := fac.F_id
-	facilitesId := strings.Split(f_id, " , ")
-	f_desc := fac.F_desc
-	facilitesDesc := strings.Split(f_desc, " , ")
-	f_slug := fac.F_slug
-	facilitiesSlug := strings.Split(f_slug, " , ")
+	facilitesId := strings.Split(officeFacilities.F_id, " , ")
+	facilitesDesc := strings.Split(officeFacilities.F_desc, " , ")
+	facilitiesSlug := strings.Split(officeFacilities.F_slug, " , ")
 
 	office.FacilitiesId =  facilitesId
 	office.FacilitiesDesc = facilitesDesc
 	office.FacilitesSlug = facilitiesSlug
 
-	var count int64
-
-	or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-	office.TotalBooked = count
-
-	var rate_score float64
+	or.conn.Table("transactions").
+		Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).
+		Where("office_id = ?", office.ID).
+		Count(&count)
 
 	or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
 
+	office.TotalBooked = count
 	office.Rate = rate_score
 
 	return office.ToDomain()
@@ -308,534 +290,22 @@ func (or *officeRepository) Delete(id string) bool {
 	return true
 }
 
-func (or *officeRepository) SearchByCity(city string) []offices.Domain {
-	var rec []Office
-
-	or.conn.Find(&rec, "city = ?", city)
-
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) SearchByRate(rate string) []offices.Domain {
-	rec  := or.GetAll()
-	var officeDomain []offices.Domain
-	intRate, _ := strconv.Atoi(rate)
-
-	for _, v := range rec {
-		office := FromDomain(&v)
-
-		switch intRate {
-			case 5:
-				if office.Rate == 5 {
-					officeDomain = append(officeDomain, office.ToDomain())
-				}
-			case 0:
-				if office.Rate == 0 {
-					officeDomain = append(officeDomain, office.ToDomain())
-				}
-			default:
-				if office.Rate >= float64(intRate) && office.Rate < (float64(intRate) + 1) {
-					officeDomain = append(officeDomain, office.ToDomain())
-				}
-		}
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) SearchByTitle(title string) []offices.Domain {
-	var rec []Office
-
-	or.conn.Find(&rec, "title = ?", title)
-
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) GetOffices() []offices.Domain {
-	var rec []Office
-
-	or.conn.Find(&rec, "office_type = ?", "office")
-
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT( office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) GetCoworkingSpace() []offices.Domain {
-	var rec []Office
-
-	or.conn.Find(&rec, "office_type = ?", "coworking space")
-
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT( office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) GetMeetingRooms() []offices.Domain {
-	var rec []Office
-
-	or.conn.Find(&rec, "office_type = ?", "meeting room")
-
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT( office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
-func (or *officeRepository) GetRecommendation() []offices.Domain {
-	var rec []Office
-
-	or.conn.Order("rate desc, title, description").Find(&rec)
-	
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-
-	officeDomain := []offices.Domain{}
-	
-	for _, office := range rec {
-		for _, v := range imgsUrlPerID {
-			if strconv.Itoa(int(office.ID)) == v.Id {
-				url := v.Images
-				img := strings.Split(url, " , ")
-				office.Images = img
-			}
-		}
-
-		for _, fac := range officeFacilitiesPerID {
-			if strconv.Itoa(int(office.ID)) == fac.Id {
-				f_id := fac.F_id
-				facilitesId := strings.Split(f_id, " , ")
-				f_desc := fac.F_desc
-				facilitesDesc := strings.Split(f_desc, " , ")
-				f_slug := fac.F_slug
-				facilitiesSlug := strings.Split(f_slug, " , ")
-
-				office.FacilitiesId =  facilitesId
-				office.FacilitiesDesc = facilitesDesc
-				office.FacilitesSlug = facilitiesSlug
-			}
-		}
-
-		var count int64
-
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
-
-		officeDomain = append(officeDomain, office.ToDomain())
-	}
-
-	return officeDomain
-}
-
 func (or *officeRepository) GetNearest(lat string, long string) []offices.Domain {
-	var rec []Office
+	rec := or.GetAll()
 
-	or.conn.Find(&rec)
-	
-	var imgsUrlPerID []imgs
-
-	queryGetImgs := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT( office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images " + 
-		"FROM offices " + 
-		"INNER JOIN office_images on offices.id = office_images.office_id " + 
-		"GROUP BY offices.id"
-	or.conn.Raw(queryGetImgs).Scan(&imgsUrlPerID)
-
-	var officeFacilitiesPerID []facilities
-	queryGetFacilities := "SELECT `offices`.`id`, " + 
-		"GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id, " + 
-		"GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc, " + 
-		"GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug " + 
-		"FROM `offices` " + 
-		"INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id` " + 
-		"INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` " + 
-		"GROUP BY `offices`.`id`"
-	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
-	
-	// find nearest logic here
-	var distance []distance
-
-	// distance is in kilometer
-	queryGetDistance := fmt.Sprintf("SELECT `offices`.`id`, " + 
-		"CAST(" + 
-			"SQRT(" + 
-				"POW(69.1 * (`offices`.`lat` - '%s'), 2) + " + 
-				"POW(69.1 * ('%s' - `offices`.`lng`) * " + 
-				"COS(`offices`.`lng` / 57.3), 2)) * 1.60934 " + 
-			"AS DECIMAL(16,2)) " + 
-		"AS distance " + 
-		"FROM `offices` " + 
-		"HAVING distance < 40 " + 
-		"ORDER BY distance", lat, long)
-
-	or.conn.Raw(queryGetDistance).Scan(&distance)
+	powLat := fmt.Sprintf("POW(69.1 * (`offices`.`lat` - '%s'), 2)", lat)
+	powLng := fmt.Sprintf("POW(69.1 * ('%s' - `offices`.`lng`) * COS(`offices`.`lng` / 57.3), 2)", long)
+	sqrt := fmt.Sprintf("SQRT(%s + %s) * 1.60934", powLat, powLng)
+	cast := fmt.Sprintf("CAST(%s AS DECIMAL (16,2))", sqrt)
 
 	officeDomain := []offices.Domain{}
 
-	for _, d := range distance {
-		for _, office := range rec {
-			for _, v := range imgsUrlPerID {
-				if strconv.Itoa(int(office.ID)) == v.Id {
-					url := v.Images
-					img := strings.Split(url, " , ")
-					office.Images = img
-				}
-			}
-	
-			for _, fac := range officeFacilitiesPerID {
-				if strconv.Itoa(int(office.ID)) == fac.Id {
-					f_id := fac.F_id
-					facilitesId := strings.Split(f_id, " , ")
-					f_desc := fac.F_desc
-					facilitesDesc := strings.Split(f_desc, " , ")
-					f_slug := fac.F_slug
-					facilitiesSlug := strings.Split(f_slug, " , ")
-	
-					office.FacilitiesId =  facilitesId
-					office.FacilitiesDesc = facilitesDesc
-					office.FacilitesSlug = facilitiesSlug
-				}
-			}
-
-			var count int64
-
-			or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-			office.TotalBooked = count
-
-			var rate_score float64
-
-			or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-			office.Rate = rate_score
-
-			if strconv.Itoa(int(office.ID)) == d.Id {
-				office.Distance = d.Distance
-				officeDomain = append(officeDomain, office.ToDomain())
-			}
-		}
+	for _, office := range rec {
+		var distance float64
+		or.conn.Table("offices").Where("id = ?", office.ID).Select(cast).Scan(&distance)
+		office.Distance = distance
+		officeDomain = append(officeDomain, office)
 	}
-
+	
 	return officeDomain
 }
