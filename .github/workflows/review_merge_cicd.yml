@@ -6,7 +6,7 @@ name: Go
 on:
   push:
     branches: 
-      - merge/review
+      - staging-2_test_cleaning
 
 jobs:
 
