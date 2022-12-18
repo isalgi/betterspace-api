@@ -26,14 +26,6 @@ func NewReviewController(rc review.Usecase) *ReviewController {
 }
 
 func (r *ReviewController) GetAll(c echo.Context) error {
-	token := c.Get("user").(*jwt.Token)
-
-	isListed := middlewares.CheckToken(token.Raw)
-
-	if !isListed {
-		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
-	}
-
 	ReviewsData := r.ReviewUsecase.GetAll()
 
 	Reviews := []response.Review{}

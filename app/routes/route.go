@@ -93,7 +93,7 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	// endpoint admin : manage review
 	adminReview := admin.Group("/review")
 	adminReviewDetail := adminReview.Group("/details")
-	adminReview.GET("", cl.ReviewController.GetAll, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-all-review"
+	adminReview.GET("", cl.ReviewController.GetAll).Name = "[admin]-get-all-review"
 	adminReviewDetail.GET("/:id", cl.ReviewController.GetByID, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-get-review-by-id"
 	adminReview.GET("/user/:user_id", cl.ReviewController.AdminGetByUserID, middleware.JWTWithConfig(cl.JWTMiddleware))
 	adminReviewDetail.POST("", cl.ReviewController.Create, middleware.JWTWithConfig(cl.JWTMiddleware)).Name = "[admin]-create-review"

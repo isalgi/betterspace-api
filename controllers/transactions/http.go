@@ -34,7 +34,7 @@ func (t *TransactionController) GetAll(c echo.Context) error {
 	if !isListed {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
-
+	
 	TransactionsData := t.TransactionUsecase.GetAll()
 
 	Transactions := []response.Transaction{}
