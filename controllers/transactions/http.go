@@ -27,6 +27,14 @@ func NewTransactionController(tc transactions.Usecase) *TransactionController {
 }
 
 func (t *TransactionController) GetAll(c echo.Context) error {
+	token := c.Get("user").(*jwt.Token)
+
+	isListed := middlewares.CheckToken(token.Raw)
+
+	if !isListed {
+		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
+	}
+	
 	TransactionsData := t.TransactionUsecase.GetAll()
 
 	Transactions := []response.Transaction{}
