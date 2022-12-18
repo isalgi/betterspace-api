@@ -51,9 +51,8 @@ func (or *officeRepository) GetAll() []offices.Domain {
 	or.conn.Raw(queryGetTotalBooked).Scan(&totalBooked)
 
 	var rateScore []ratescore
-	queryGetRateScore := "SELECT `office_id`, ROUND(AVG(`score`), 1) FROM `reviews` GROUP BY `office_id`;"
+	queryGetRateScore := "SELECT `office_id`, ROUND(AVG(`score`), 1) AS score FROM `reviews` GROUP BY `office_id`;"
 	or.conn.Raw(queryGetRateScore).Scan(&rateScore)
-
 
 	officeDomain := []offices.Domain{}
 	
