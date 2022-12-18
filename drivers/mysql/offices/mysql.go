@@ -46,6 +46,15 @@ func (or *officeRepository) GetAll() []offices.Domain {
 		"GROUP BY `offices`.`id`"
 	or.conn.Raw(queryGetFacilities).Scan(&officeFacilitiesPerID)
 
+	var totalBooked []totalbooked
+	queryGetTotalBooked := "SELECT `office_id`, COUNT(*) AS total_booked FROM `transactions` WHERE `status` NOT IN ('rejected', 'cancelled') GROUP BY `office_id`"
+	or.conn.Raw(queryGetTotalBooked).Scan(&totalBooked)
+
+	var rateScore []ratescore
+	queryGetRateScore := "SELECT `office_id`, ROUND(AVG(`score`), 1) FROM `reviews` GROUP BY `office_id`;"
+	or.conn.Raw(queryGetRateScore).Scan(&rateScore)
+
+
 	officeDomain := []offices.Domain{}
 	
 	for _, office := range rec {
@@ -72,17 +81,17 @@ func (or *officeRepository) GetAll() []offices.Domain {
 			}
 		}
 
-		var count int64
+		for _, b := range totalBooked {
+			if strconv.Itoa(int(office.ID)) == b.OfficeId {
+				office.TotalBooked = b.TotalBooked
+			}
+		}
 
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		office.TotalBooked = count
-
-		var rate_score float64
-
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		office.Rate = rate_score
+		for _, r := range rateScore {
+			if strconv.Itoa(int(office.ID)) == r.OfficeId {
+				office.Rate = r.Score
+			}
+		}
 
 		officeDomain = append(officeDomain, office.ToDomain())
 	}

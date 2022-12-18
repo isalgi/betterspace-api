@@ -54,6 +54,16 @@ type distance struct {
 	Distance float64
 }
 
+type totalbooked struct {
+	OfficeId string
+	TotalBooked int64
+}
+
+type ratescore struct {
+	OfficeId string
+	Score float64
+}
+
 func FromDomain(domain *officeUsecase.Domain) *Office {
 	return &Office{
 		ID:             domain.ID,
