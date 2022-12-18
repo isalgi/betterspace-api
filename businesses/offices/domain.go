@@ -44,7 +44,7 @@ type Usecase interface {
 	Delete(id string) bool
 	SearchByCity(city string) []Domain
 	SearchByRate(rate string) []Domain
-	SearchByTitle(title string) []Domain
+	SearchByTitle(title string) Domain
 	GetOffices() []Domain
 	GetCoworkingSpace() []Domain
 	GetMeetingRooms() []Domain
@@ -58,12 +58,5 @@ type Repository interface {
 	Create(officeDomain *Domain) Domain
 	Update(id string, officeDomain *Domain) Domain
 	Delete(id string) bool
-	SearchByCity(city string) []Domain
-	SearchByRate(rate string) []Domain
-	SearchByTitle(title string) []Domain
-	GetOffices() []Domain
-	GetCoworkingSpace() []Domain
-	GetMeetingRooms() []Domain
-	GetRecommendation() []Domain
 	GetNearest(lat string, long string) []Domain
 }

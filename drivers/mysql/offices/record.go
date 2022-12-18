@@ -8,26 +8,26 @@ import (
 )
 
 type Office struct {
-	ID             uint           `gorm:"primaryKey" json:"id" form:"id"`
+	ID             uint           `gorm:"primaryKey" json:"id"`
 	CreatedAt      time.Time      `json:"created_at"`
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `json:"deleted_at"`
-	Title          string         `json:"title" form:""`
+	Title          string         `json:"title"`
 	Description    string         `json:"description" form:"description"`
-	OfficeType     string         `gorm:"type:enum('office', 'coworking space', 'meeting room')" json:"office_type" form:"office_type"`
-	OfficeLength   uint           `json:"office_length" form:"office_length"`
-	Price          uint           `json:"price" form:"price"`
-	OpenHour       time.Time      `json:"open_hour" gorm:"type:timestamp;not null;default:now()" form:"open_hour"`
-	CloseHour      time.Time      `json:"close_hour" gorm:"type:timestamp;not null;default:now()" form:"close_hour"`
-	Lat            float64        `gorm:"type:decimal(10,7)" json:"lat" form:"lat"`
-	Lng            float64        `gorm:"type:decimal(11,7)" json:"lng" form:"lng"`
-	Accommodate    uint           `json:"accommodate" form:"accommodate"`
-	WorkingDesk    uint           `json:"working_desk" form:"working_desk"`
-	MeetingRoom    uint           `json:"meeting_room" form:"meeting_room"`
-	PrivateRoom    uint           `json:"private_room" form:"private_room"`
-	City           string         `gorm:"type:enum('central jakarta', 'south jakarta', 'west jakarta', 'east jakarta', 'thousand islands')" json:"city" form:"city"`
-	District       string         `json:"district" form:"district"`
-	Address        string         `json:"address" form:"address"`
+	OfficeType     string         `gorm:"type:enum('office','coworking space','meeting room')" json:"office_type"`
+	OfficeLength   uint           `json:"office_length"`
+	Price          uint           `json:"price"`
+	OpenHour       time.Time      `json:"open_hour" gorm:"type:timestamp;not null;default:now()"`
+	CloseHour      time.Time      `json:"close_hour" gorm:"type:timestamp;not null;default:now()"`
+	Lat            float64        `gorm:"type:decimal(10,7)" json:"lat"`
+	Lng            float64        `gorm:"type:decimal(11,7)" json:"lng"`
+	Accommodate    uint           `json:"accommodate"`
+	WorkingDesk    uint           `json:"working_desk"`
+	MeetingRoom    uint           `json:"meeting_room"`
+	PrivateRoom    uint           `json:"private_room"`
+	City           string         `gorm:"type:enum('central jakarta','south jakarta','west jakarta','east jakarta','thousand islands')" json:"city"`
+	District       string         `json:"district"`
+	Address        string         `json:"address"`
 	Rate           float64        `gorm:"-"`
 	Images         []string       `gorm:"-"`
 	FacilitiesId   []string       `gorm:"-"`
@@ -35,33 +35,6 @@ type Office struct {
 	FacilitesSlug  []string       `gorm:"-"`
 	Distance       float64        `gorm:"-"`
 	TotalBooked    int64          `gorm:"-"`
-}
-
-type imgs struct {
-	Id     string
-	Images string
-}
-
-type facilities struct {
-	Id     string
-	F_id   string
-	F_desc string
-	F_slug string
-}
-
-type distance struct {
-	Id       string
-	Distance float64
-}
-
-type totalbooked struct {
-	OfficeId string
-	TotalBooked int64
-}
-
-type ratescore struct {
-	OfficeId string
-	Score float64
 }
 
 func FromDomain(domain *officeUsecase.Domain) *Office {
