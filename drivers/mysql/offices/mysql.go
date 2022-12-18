@@ -20,58 +20,115 @@ func NewMySQLRepository(conn *gorm.DB) offices.Repository {
 	}
 }
 
+type imgs struct {
+	Id     string
+	Images string
+}
+
+type facilities struct {
+	Id     string
+	F_id   string
+	F_desc string
+	F_slug string
+}
+
+type distance struct {
+	Id       string
+	Distance float64
+}
+
+type totalBooked struct {
+	OfficeId string
+	TotalBooked int64
+}
+
+type rateScore struct {
+	OfficeId string
+	Score float64
+}
+
 func (or *officeRepository) GetAll() []offices.Domain {
+	var images []imgs
+	var officeFacilities []facilities
+	var totalBooked []totalBooked
+	var rateScore []rateScore
 	var rec []Office
 
 	or.conn.Find(&rec)
 
 	officeDomain := []offices.Domain{}
+
+
+	// get office images
+		or.conn.Table("office_images").
+		Select("office_id AS id, GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ') AS images").
+		Group("office_id").
+		Scan(&images)
+
+	// get office facilities
+	groupConcatFacId := "GROUP_CONCAT(office_facilities.facilities_id ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_id"
+	groupConcatFacDesc := "GROUP_CONCAT(facilities.description ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_desc"
+	groupConcatFacSlug := "GROUP_CONCAT(facilities.slug ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_slug"
+	querySelect := fmt.Sprintf("offices.id, %s, %s, %s", groupConcatFacId, groupConcatFacDesc, groupConcatFacSlug)
+
+	or.conn.Table("offices").
+		Select(querySelect).
+		Joins("INNER JOIN office_facilities ON offices.id=office_facilities.office_id").
+		Joins("INNER JOIN facilities ON office_facilities.facilities_id=facilities.id").
+		Group("offices.id").
+		Scan(&officeFacilities)
+
+	// total_booked counter
+	or.conn.Table("transactions").
+		Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).
+		Select("office_id, COUNT(*) AS total_booked").
+		Group("office_id").
+		Scan(&totalBooked)
+
+
+	// average rating counter
+	or.conn.Table("reviews").
+		Select("office_id as OfficeId, round(avg(score), 1) as Score").
+		Group("office_id").
+		Scan(&rateScore)
 	
 	for _, office := range rec {
-		var images string
-		var count int64
-		var rate_score float64
-		var officeFacilities facilities
-	
-		// get office images
-		or.conn.Table("office_images").
-			Where("office_id = ?", office.ID).
-			Select("GROUP_CONCAT(office_images.url ORDER BY office_images.id SEPARATOR ' , ')").
-			Scan(&images)
+		for _, v := range images {
+			if strconv.Itoa(int(office.ID)) == v.Id {
+				url := v.Images
+				img := strings.Split(url, " , ")
+				office.Images = img
+				break
+			}
+		}
 
-		img := strings.Split(images, " , ")
-		office.Images = img
+		for _, fac := range officeFacilities {
+			if strconv.Itoa(int(office.ID)) == fac.Id {
+				facilitesId := strings.Split(fac.F_id, " , ")
+				facilitesDesc := strings.Split(fac.F_desc, " , ")
+				facilitiesSlug := strings.Split(fac.F_slug, " , ")
 
-		// get office facilities
-		groupConcatFacId := "GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id"
-		groupConcatFacDesc := "GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc"
-		groupConcatFacSlug := "GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug"
-		querySelect := fmt.Sprintf("%s, %s, %s", groupConcatFacId, groupConcatFacDesc, groupConcatFacSlug)
+				office.FacilitiesId =  facilitesId
+				office.FacilitiesDesc = facilitesDesc
+				office.FacilitesSlug = facilitiesSlug
+				break
+			}
+		}
 
-		or.conn.Table("offices").
-			Select(querySelect).
-			Joins("INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id`").
-			Joins("INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` WHERE `office_id` = ?", office.ID).
-			Scan(&officeFacilities)
+		for _, b := range totalBooked {
+			if strconv.Itoa(int(office.ID)) == b.OfficeId {
+				office.TotalBooked = b.TotalBooked
+				break
+			}
+		}
 
-		facilitesId := strings.Split(officeFacilities.F_id, " , ")
-		facilitesDesc := strings.Split(officeFacilities.F_desc, " , ")
-		facilitiesSlug := strings.Split(officeFacilities.F_slug, " , ")
+		for _, r := range rateScore {
+			if strconv.Itoa(int(office.ID)) == r.OfficeId {
+				office.Rate = r.Score
+				break
+			}
+		}
 
-		// total_booked counter
-		or.conn.Table("transactions").Not(map[string]interface{}{"status": []string{"rejected", "cancelled"}}).Where("office_id = ?", office.ID).Count(&count)
-
-		// average rating counter
-		or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
-
-		// assign values
-		office.FacilitiesId =  facilitesId
-		office.FacilitiesDesc = facilitesDesc
-		office.FacilitesSlug = facilitiesSlug
-		office.Rate = rate_score
-		office.TotalBooked = count
-
-		// append value
 		officeDomain = append(officeDomain, office.ToDomain())
 	}
 
@@ -98,15 +155,15 @@ func (or *officeRepository) GetByID(id string) offices.Domain {
 	var officeFacilities facilities
 
 	// get office facilities
-	groupConcatFacId := "GROUP_CONCAT(`office_facilities`.`facilities_id` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_id"
-	groupConcatFacDesc := "GROUP_CONCAT(`facilities`.`description` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_desc"
-	groupConcatFacSlug := "GROUP_CONCAT(`facilities`.`slug` ORDER BY `office_facilities`.`facilities_id` SEPARATOR ' , ') AS f_slug"
+	groupConcatFacId := "GROUP_CONCAT(office_facilities.facilities_id ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_id"
+	groupConcatFacDesc := "GROUP_CONCAT(facilities.description ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_desc"
+	groupConcatFacSlug := "GROUP_CONCAT(facilities.slug ORDER BY office_facilities.facilities_id SEPARATOR ' , ') AS f_slug"
 	querySelect := fmt.Sprintf("%s, %s, %s", groupConcatFacId, groupConcatFacDesc, groupConcatFacSlug)
 
 	or.conn.Table("offices").
 		Select(querySelect).
-		Joins("INNER JOIN `office_facilities` ON `offices`.`id`=`office_facilities`.`office_id`").
-		Joins("INNER JOIN `facilities` ON `office_facilities`.`facilities_id`=`facilities`.`id` WHERE `office_id` = ?", office.ID).
+		Joins("INNER JOIN office_facilities ON offices.id=office_facilities.office_id").
+		Joins("INNER JOIN facilities ON office_facilities.facilities_id=facilities.id WHERE office_id = ?", office.ID).
 		Scan(&officeFacilities)
 
 	facilitesId := strings.Split(officeFacilities.F_id, " , ")
@@ -122,7 +179,7 @@ func (or *officeRepository) GetByID(id string) offices.Domain {
 		Where("office_id = ?", office.ID).
 		Count(&count)
 
-	or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(`score`), 1)").Scan(&rate_score)
+	or.conn.Table("reviews").Where("office_id = ?", office.ID).Select("round(avg(score), 1)").Scan(&rate_score)
 
 	office.TotalBooked = count
 	office.Rate = rate_score
@@ -145,7 +202,7 @@ func (or *officeRepository) Create(officeDomain *offices.Domain) offices.Domain 
 	sort.Sort(sort.Reverse(sort.IntSlice(facilitiesIdList)))
 
 	for _, v := range facilitiesIdList {
-		if err := or.conn.Exec(fmt.Sprintf("SELECT * FROM `facilities` WHERE `id` = %d", v)).Error; err != nil {
+		if err := or.conn.Exec(fmt.Sprintf("SELECT * FROM facilities WHERE id = %d", v)).Error; err != nil {
 			return rec.ToDomain()
 		}
 	}
@@ -154,18 +211,18 @@ func (or *officeRepository) Create(officeDomain *offices.Domain) offices.Domain 
 		result = tx.Create(&rec)
 		result.Last(&rec)
 		
-		// insert to pivot table `office_images`
+		// insert to pivot table office_images
 		for _, v := range rec.Images {
-			querySQL := fmt.Sprintf("INSERT INTO `office_images`(`url`, `office_id`) VALUES ('%s', '%s')", v, strconv.Itoa(int(rec.ID)))
+			querySQL := fmt.Sprintf("INSERT INTO office_images(url, office_id) VALUES ('%s', '%s')", v, strconv.Itoa(int(rec.ID)))
 			
 			if err := tx.Table("office_images").Exec(querySQL).Error; err != nil {
 				return err
 			}
 		}
 
-		// insert to pivot table `office_facilities`
+		// insert to pivot table office_facilities
 		for _, v := range facilitiesIdList {
-			querySQL := fmt.Sprintf("INSERT INTO `office_facilities`(`facilities_id`, `office_id`) VALUES ('%d','%d')", v, rec.ID)
+			querySQL := fmt.Sprintf("INSERT INTO office_facilities(facilities_id, office_id) VALUES ('%d','%d')", v, rec.ID)
 			if err := tx.Table("office_facilities").Exec(querySQL).Error; err != nil {
 				return err
 			}
@@ -201,7 +258,7 @@ func (or *officeRepository) Update(id string, officeDomain *offices.Domain) offi
 	sort.Sort(sort.Reverse(sort.IntSlice(facilitiesIdList)))
 
 	for _, v := range facilitiesIdList {
-		if err := or.conn.Exec(fmt.Sprintf("SELECT * FROM `facilities` WHERE `id` = %d", v)).Error; err != nil {
+		if err := or.conn.Exec(fmt.Sprintf("SELECT * FROM facilities WHERE id = %d", v)).Error; err != nil {
 			office.ID = 0
 			return office
 		}
@@ -209,13 +266,13 @@ func (or *officeRepository) Update(id string, officeDomain *offices.Domain) offi
 
 	err := or.conn.Transaction(func(tx *gorm.DB) error {
 		if len(officeDomain.Images) != 0 {
-			queryDeleteImgs := fmt.Sprintf("DELETE FROM `office_images` WHERE `office_id` = %d", office.ID)
+			queryDeleteImgs := fmt.Sprintf("DELETE FROM office_images WHERE office_id = %d", office.ID)
 	
 			or.conn.Table("office_images").Exec(queryDeleteImgs)
 		
-			// insert to pivot table `office_images`
+			// insert to pivot table office_images
 			for _, v := range officeDomain.Images {
-				querySQL := fmt.Sprintf("INSERT INTO `office_images`(`url`, `office_id`) VALUES ('%s', '%d')", v, office.ID)
+				querySQL := fmt.Sprintf("INSERT INTO office_images(url, office_id) VALUES ('%s', '%d')", v, office.ID)
 
 				if err := or.conn.Table("office_images").Exec(querySQL).Error; err != nil {
 					return err
@@ -223,15 +280,15 @@ func (or *officeRepository) Update(id string, officeDomain *offices.Domain) offi
 			}
 		}
 
-		queryDeleteFacs := fmt.Sprintf("DELETE FROM `office_facilities` WHERE `office_id` = %d", office.ID)
+		queryDeleteFacs := fmt.Sprintf("DELETE FROM office_facilities WHERE office_id = %d", office.ID)
 	
 		if err := or.conn.Table("office_images").Exec(queryDeleteFacs).Error; err != nil {
 			return err
 		}
 
-		// insert to pivot table `office_facilities`
+		// insert to pivot table office_facilities
 		for _, v := range facilitiesIdList {
-			querySQL := fmt.Sprintf("INSERT INTO `office_facilities`(`facilities_id`, `office_id`) VALUES ('%d','%d')", v, office.ID)
+			querySQL := fmt.Sprintf("INSERT INTO office_facilities(facilities_id, office_id) VALUES ('%d','%d')", v, office.ID)
 			if err := tx.Table("office_facilities").Exec(querySQL).Error; err != nil {
 				return err
 			}
@@ -281,29 +338,35 @@ func (or *officeRepository) Delete(id string) bool {
 		return false
 	}
 
-	queryDeleteImgs := fmt.Sprintf("DELETE FROM `office_images` WHERE `office_id` = '%d'", deletedOffice.ID)
+	queryDeleteImgs := fmt.Sprintf("DELETE FROM office_images WHERE office_id = '%d'", deletedOffice.ID)
 	or.conn.Table("office_images").Exec(queryDeleteImgs)
 
-	queryDeleteFac := fmt.Sprintf("DELETE FROM `office_facilities` WHERE `office_id` = '%d'", deletedOffice.ID)
+	queryDeleteFac := fmt.Sprintf("DELETE FROM office_facilities WHERE office_id = '%d'", deletedOffice.ID)
 	or.conn.Table("office_facilities").Exec(queryDeleteFac)
 
 	return true
 }
 
 func (or *officeRepository) GetNearest(lat string, long string) []offices.Domain {
+	var dist []distance
 	rec := or.GetAll()
 
-	powLat := fmt.Sprintf("POW(69.1 * (`offices`.`lat` - '%s'), 2)", lat)
-	powLng := fmt.Sprintf("POW(69.1 * ('%s' - `offices`.`lng`) * COS(`offices`.`lng` / 57.3), 2)", long)
+	powLat := fmt.Sprintf("POW(69.1 * (offices.lat - '%s'), 2)", lat)
+	powLng := fmt.Sprintf("POW(69.1 * ('%s' - offices.lng) * COS(offices.lng / 57.3), 2)", long)
 	sqrt := fmt.Sprintf("SQRT(%s + %s) * 1.60934", powLat, powLng)
-	cast := fmt.Sprintf("CAST(%s AS DECIMAL (16,2))", sqrt)
+	cast := fmt.Sprintf("offices.id as id, CAST(%s AS DECIMAL (16,2)) as distance", sqrt)
+	or.conn.Table("offices").Select(cast).Scan(&dist)
 
 	officeDomain := []offices.Domain{}
 
 	for _, office := range rec {
-		var distance float64
-		or.conn.Table("offices").Where("id = ?", office.ID).Select(cast).Scan(&distance)
-		office.Distance = distance
+		for _, d := range dist {
+			if strconv.Itoa(int(office.ID)) == d.Id {
+				office.Distance = d.Distance
+			break
+			}
+		}
+
 		officeDomain = append(officeDomain, office)
 	}
 	

@@ -37,12 +37,6 @@ type Office struct {
 	TotalBooked    int64          `gorm:"-"`
 }
 
-type facilities struct {
-	F_id   string
-	F_desc string
-	F_slug string
-}
-
 func FromDomain(domain *officeUsecase.Domain) *Office {
 	return &Office{
 		ID:             domain.ID,
