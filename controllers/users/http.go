@@ -1,19 +1,19 @@
 package users
 
 import (
-	"backend/app/middlewares"
-	"backend/helper"
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
+	"backend/app/middlewares"
+	_utils "backend/utils"
+	
 	"backend/businesses/users"
 
 	ctrl "backend/controllers"
 	"backend/controllers/users/request"
 	"backend/controllers/users/response"
-
-	"net/http"
 
 	passwordvalidator "github.com/wagslane/go-password-validator"
 	"github.com/golang-jwt/jwt"
@@ -102,7 +102,7 @@ func (ac *AuthController) Token(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid refresh token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	id := payload.ID
 	getUser := ac.authUsecase.GetByID(id)
 
@@ -133,7 +133,7 @@ func (ac *AuthController) GetAll(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -174,7 +174,7 @@ func (ac *AuthController) GetByID(c echo.Context) error {
 func (ac *AuthController) GetProfile(c echo.Context) error {
 	var user users.Domain
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	userId := payload.ID
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -195,7 +195,7 @@ func (ac *AuthController) GetProfile(c echo.Context) error {
 func (ac *AuthController) Delete(c echo.Context) error {
 	var isSuccess bool
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
 	paramsId := c.Param("id")
@@ -221,7 +221,7 @@ func (ac *AuthController) Delete(c echo.Context) error {
 
 func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
 	paramsId := c.Param("id")
@@ -254,7 +254,7 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
 	}
 
-	isFileAllowed, isFileAllowedMessage := helper.IsFileAllowed(fileInput)
+	isFileAllowed, isFileAllowedMessage := _utils.IsFileAllowed(fileInput)
 
 	if !isFileAllowed {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", isFileAllowedMessage)
@@ -281,9 +281,9 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 	}
 
 	if role == "user" {
-		url, err = helper.CloudinaryUpload(ctx, src, userId)
+		url, err = _utils.CloudinaryUpload(ctx, src, userId)
 	} else if role == "admin" {
-		url, err = helper.CloudinaryUpload(ctx, src, paramsId)
+		url, err = _utils.CloudinaryUpload(ctx, src, paramsId)
 	}
 	
 	if err != nil {
@@ -312,7 +312,7 @@ func (ac *AuthController) UpdateProfilePhoto(c echo.Context) error {
 
 func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	userId := payload.ID
 	paramsId := c.Param("id")
@@ -372,7 +372,7 @@ func (ac *AuthController) UpdateProfileData(c echo.Context) error {
 
 func (ac *AuthController) SearchByEmail(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	var email string = c.QueryParam("search")
 

@@ -2,12 +2,15 @@ package transactions
 
 import (
 	"backend/app/middlewares"
+	
 	transactions "backend/businesses/transactions"
+	
 	ctrl "backend/controllers"
 	"backend/controllers/transactions/request"
 	"backend/controllers/transactions/response"
-	"backend/helper"
-	"backend/utils"
+	
+	_utils "backend/utils"
+	
 	"fmt"
 	"net/http"
 	"strconv"
@@ -48,7 +51,7 @@ func (t *TransactionController) GetAll(c echo.Context) error {
 
 func (t *TransactionController) GetByUserID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	userId := payload.ID
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -71,7 +74,7 @@ func (t *TransactionController) GetByUserID(c echo.Context) error {
 func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	var userId string = c.Param("user_id")
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -98,7 +101,7 @@ func (t *TransactionController) AdminGetByUserID(c echo.Context) error {
 func (t *TransactionController) GetByOfficeID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	var officeId string = c.Param("office_id")
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -148,11 +151,11 @@ func (t *TransactionController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
 	}
 
-	checkInHour := utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
+	checkInHour := _utils.ConvertStringToShiftTime(checkInDTO.CheckInDate, checkInDTO.CheckInHour)
 
 	input.CheckIn = checkInHour
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role == "user" {
@@ -178,7 +181,7 @@ func (t *TransactionController) Create(c echo.Context) error {
 
 func (t *TransactionController) GetByID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	userId := payload.ID
 	role := payload.Roles
 
@@ -214,7 +217,7 @@ func (t *TransactionController) Update(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "admin" {
@@ -253,7 +256,7 @@ func (t *TransactionController) Delete(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "admin" {
@@ -281,7 +284,7 @@ func (t *TransactionController) Cancel(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "user" {
@@ -315,7 +318,7 @@ func (t *TransactionController) GetTotalTransactions(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "admin" {
@@ -336,7 +339,7 @@ func (t *TransactionController) GetTotalTransactionsByOfficeID(c echo.Context) e
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "admin" {

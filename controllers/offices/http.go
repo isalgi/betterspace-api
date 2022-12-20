@@ -3,8 +3,7 @@ package offices
 import (
 	"backend/app/middlewares"
 	"backend/businesses/offices"
-	"backend/helper"
-	"backend/utils"
+	_utils "backend/utils"
 	"fmt"
 	"strconv"
 
@@ -77,7 +76,7 @@ func (oc *OfficeController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -109,10 +108,10 @@ func (oc *OfficeController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
 	}
 
-	facilityIdList := utils.StringToList(facilityIdDTO.Id)
+	facilityIdList := _utils.StringToList(facilityIdDTO.Id)
 
 	// facilities_id list validation
-	if err := utils.IsIdListStringAllowed(facilityIdDTO.Id); err != nil {
+	if err := _utils.IsIdListStringAllowed(facilityIdDTO.Id); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
 	}
 
@@ -125,19 +124,19 @@ func (oc *OfficeController) Create(c echo.Context) error {
 
 	files := form.File["images"]
 
-	isfilesAllowed, filesCheckMsg := helper.IsFilesAllowed(files)
+	isfilesAllowed, filesCheckMsg := _utils.IsFilesAllowed(files)
 
 	if !isfilesAllowed {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", filesCheckMsg)
 	}
 
-	imageURLs, err = helper.CloudinaryUploadOfficeImgs(files)
+	imageURLs, err = _utils.CloudinaryUploadOfficeImgs(files)
 
 	if err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusConflict, "failed", "conflict when upload file in cloud image")
 	}
 
-	openHour, closeHour := utils.ConvertShiftClockToShiftTime(hourDTO.OpenHour, hourDTO.CloseHour)
+	openHour, closeHour := _utils.ConvertShiftClockToShiftTime(hourDTO.OpenHour, hourDTO.CloseHour)
 
 	input.Images = imageURLs
 	input.OpenHour = openHour
@@ -170,7 +169,7 @@ func (oc *OfficeController) Update(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -209,10 +208,10 @@ func (oc *OfficeController) Update(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "bind failed")
 	}
 
-	facilityIdList := utils.StringToList(facilityIdDTO.Id)
+	facilityIdList := _utils.StringToList(facilityIdDTO.Id)
 
 	// facilities_id list validation
-	if err := utils.IsIdListStringAllowed(facilityIdDTO.Id); err != nil {
+	if err := _utils.IsIdListStringAllowed(facilityIdDTO.Id); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("wrong input in facilities_id, %s", err))
 	}
 
@@ -226,13 +225,13 @@ func (oc *OfficeController) Update(c echo.Context) error {
 	files := form.File["images"]
 
 	if len(files) > 0 {
-		isfilesAllowed, filesCheckMsg := helper.IsFilesAllowed(files)
+		isfilesAllowed, filesCheckMsg := _utils.IsFilesAllowed(files)
 
 		if !isfilesAllowed {
 			return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", filesCheckMsg)
 		}
 
-		imageURLs, err = helper.CloudinaryUploadOfficeImgs(files)
+		imageURLs, err = _utils.CloudinaryUploadOfficeImgs(files)
 
 		if err != nil {
 			return ctrl.NewInfoResponse(c, http.StatusConflict, "failed", "conflict when upload file in cloud image")
@@ -241,7 +240,7 @@ func (oc *OfficeController) Update(c echo.Context) error {
 		input.Images = imageURLs
 	}
 
-	openHour, closeHour := utils.ConvertShiftClockToShiftTime(hourDTO.OpenHour, hourDTO.CloseHour)
+	openHour, closeHour := _utils.ConvertShiftClockToShiftTime(hourDTO.OpenHour, hourDTO.CloseHour)
 	input.OpenHour = openHour
 	input.CloseHour = closeHour
 	input.FacilitiesId = facilityIdList
@@ -273,7 +272,7 @@ func (oc *OfficeController) Delete(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -459,7 +458,7 @@ func (oc *OfficeController) GetNearest(c echo.Context) error {
 	var lat string = c.QueryParam("lat")
 	var lng string = c.QueryParam("long")
 
-	if err := utils.IsGeolocationStringInputAllowed(lat, lng); err != nil {
+	if err := _utils.IsGeolocationStringInputAllowed(lat, lng); err != nil {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", fmt.Sprintf("%s", err))
 	}
 

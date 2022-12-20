@@ -3,7 +3,7 @@ package facilities
 import (
 	"backend/app/middlewares"
 	"backend/businesses/facilities"
-	"backend/helper"
+	_utils "backend/utils"
 
 	ctrl "backend/controllers"
 	"backend/controllers/facilities/request"
@@ -58,7 +58,7 @@ func (oc *FacilityController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -94,7 +94,7 @@ func (oc *FacilityController) Update(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {
@@ -132,7 +132,7 @@ func (oc *FacilityController) Delete(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 	
 	if role != "admin" {

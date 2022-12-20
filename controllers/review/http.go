@@ -1,15 +1,18 @@
 package review
 
 import (
-	"backend/app/middlewares"
-	review "backend/businesses/review"
-	ctrl "backend/controllers"
-	"backend/controllers/review/request"
-	"backend/controllers/review/response"
-	"backend/helper"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"backend/app/middlewares"
+	review "backend/businesses/review"
+	
+	ctrl "backend/controllers"
+	"backend/controllers/review/request"
+	"backend/controllers/review/response"
+	
+	_utils "backend/utils"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -52,7 +55,7 @@ func (r *ReviewController) Create(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusBadRequest, "failed", "validation failed")
 	}
 	
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role == "user" {
@@ -77,7 +80,7 @@ func (r *ReviewController) Create(c echo.Context) error {
 
 func (r *ReviewController) GetByID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	userId := payload.ID
 	role := payload.Roles
 
@@ -121,7 +124,7 @@ func (r *ReviewController) Update(c echo.Context) error {
 		return ctrl.NewResponse(c, http.StatusBadRequest, "failed", "bind failed", "")
 	}
 	
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role == "user" {
@@ -153,7 +156,7 @@ func (r *ReviewController) Delete(c echo.Context) error {
 		return ctrl.NewInfoResponse(c, http.StatusUnauthorized, "failed", "invalid token")
 	}
 
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	if role != "admin" {
@@ -173,7 +176,7 @@ func (r *ReviewController) Delete(c echo.Context) error {
 
 func (r *ReviewController) GetByUserID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	userId := payload.ID
 
 	isListed := middlewares.CheckToken(token.Raw)
@@ -196,7 +199,7 @@ func (r *ReviewController) GetByUserID(c echo.Context) error {
 func (r *ReviewController) AdminGetByUserID(c echo.Context) error {
 	token := c.Get("user").(*jwt.Token)
 	var userId string = c.Param("user_id")
-	payload := helper.GetPayloadInfo(c)
+	payload := _utils.GetPayloadInfo(c)
 	role := payload.Roles
 
 	isListed := middlewares.CheckToken(token.Raw)

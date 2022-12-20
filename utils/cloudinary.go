@@ -1,7 +1,6 @@
-package helper
+package utils
 
 import (
-	_utils "backend/utils"
 	"context"
 	"fmt"
 	"log"
@@ -53,7 +52,7 @@ func CloudinaryUploadOfficeImgs(files []*multipart.FileHeader) ([]string, error)
 			return imageURLs, err
 		}
 
-		fileName := _utils.RandomString(25)
+		fileName := RandomString(25)
 
 		// upload image and set the PublicID to fileName.
 		resp, err := cld.Upload.Upload(
