@@ -6,7 +6,7 @@ name: Go
 on:
   push:
     branches: 
-      - staging-2
+      - main
 
 jobs:
 
